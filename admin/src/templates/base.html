@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}PyroKube Admin{% endblock %}</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='/css/style.css') }}"
+    />
+
+    <script src="https://unpkg.com"></script>
+  </head>
+  <body>
+    <nav class="admin-nav">
+      <h2>🔥 PyroKube Panel</h2>
+      {% block nav_links %}{% endblock %}
+    </nav>
+
+    <main class="container">{% block content %} {% endblock %}</main>
+  </body>
+</html>
