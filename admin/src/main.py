@@ -13,7 +13,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 admin_router = APIRouter(dependencies=[Depends(require_admin)])
-admin_router.include_router(auth.router)
+app.include_router(auth.router)
 app.include_router(base.router)
 app.include_router(admin_router)
 

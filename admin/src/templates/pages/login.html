@@ -1,0 +1,16 @@
+{% extends 'base.html' %} {% block content %}
+<div class="p-8 rounded-2xl shadow-xl border border-slate-700 text-center">
+  <form action="/login" method="post">
+    <label for="username">Username: </label>
+    <input type="text" id="username" placeholder="somethingcool like anubhav" />
+
+    <label for="password">Password: </label>
+    <input
+      type="password"
+      id="password"
+      placeholder="somethingstrong like anubhav"
+    />
+    <button type="submit">Submit</button>
+  </form>
+</div>
+{% endblock %}

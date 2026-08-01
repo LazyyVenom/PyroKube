@@ -8,12 +8,12 @@ from core.settings import setting
 ADMIN_PSWD = setting.ADMIN_PSWD
 COOKIE_NAME = setting.COOKIE_NAME
 
-router = APIRouter(prefix="/auth")
+router = APIRouter()
 
 
 @router.get("/login")
 def login_page(request: Request):
-    return templates.TemplateResponse("pages/login.html", {"request": request})
+    return templates.TemplateResponse(request, "pages/login.html")
 
 
 @router.post("/login")
@@ -33,6 +33,8 @@ async def login_submit(password: str = Form(...)):
 
 @router.get("/logout")
 def logout():
-    response = RedirectResponse(url="/auth/login", status_code=status.HTTP_303_SEE_OTHER)
+    response = RedirectResponse(
+        url="/auth/login", status_code=status.HTTP_303_SEE_OTHER
+    )
     response.delete_cookie(COOKIE_NAME)
     return response
