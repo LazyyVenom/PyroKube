@@ -1,16 +1,27 @@
 {% extends 'base.html' %} {% block content %}
-<div class="p-8 rounded-2xl shadow-xl border border-slate-700 text-center">
+<div class="p-8 text-center flex-col">
   <form action="/login" method="post">
-    <label for="username">Username: </label>
-    <input type="text" id="username" placeholder="somethingcool like anubhav" />
-
-    <label for="password">Password: </label>
-    <input
-      type="password"
-      id="password"
-      placeholder="somethingstrong like anubhav"
-    />
-    <button type="submit">Submit</button>
+    <div class="flex flex-col gap-4">
+      <div>
+        <label for="username">Username: </label>
+        <input
+          class="border border-white"
+          type="text"
+          id="username"
+          placeholder="somethingcool like anubhav"
+        />
+      </div>
+      <div>
+        <label for="password">Password: </label>
+        <input
+          class="border border-white"
+          type="password"
+          id="password"
+          placeholder="somethingstrong like anubhav"
+        />
+      </div>
+      <button type="submit" class="bg-white text-zinc-800">Submit</button>
+    </div>
   </form>
 </div>
 {% endblock %}
