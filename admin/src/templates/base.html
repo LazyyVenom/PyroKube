@@ -3,11 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
     <title>{% block title %}PyroKube{% endblock %}</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-ink: #101419;
+        --color-surface: #171c23;
+        --color-surface-alt: #1f262f;
+        --color-paper: #edeff2;
+        --color-paper-soft: #b4bcc7;
+        --color-slate: #8a93a0;
+        --color-rule: #2a323c;
+        --color-rule-strong: #55606e;
+        --color-ember: #ff5a1f;
+        --color-ember-lift: #ff7442;
+        --color-kube: #6690f0;
+        --color-ok: #2cc48d;
+        --color-warn: #e0a030;
+        --color-crit: #f2685e;
+
+        --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont,
+          "Helvetica Neue", Helvetica, Arial, sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
+          Consolas, "Liberation Mono", monospace;
+      }
+    </style>
   </head>
-  <body class="text-white bg-zinc-800">
-    <main class="m-10">{% block content %} {% endblock %}</main>
+  <body class="bg-ink text-paper font-sans antialiased">
+    <main class="mx-auto max-w-5xl px-6 py-10">
+      {% block content %}{% endblock %}
+    </main>
   </body>
 </html>

@@ -1,27 +1,47 @@
-{% extends 'base.html' %} {% block content %}
-<div class="p-8 text-center flex-col">
-  <form action="/login" method="post">
-    <div class="flex flex-col gap-4">
-      <div>
-        <label for="username">Username: </label>
-        <input
-          class="border border-white"
-          type="text"
-          id="username"
-          placeholder="somethingcool like anubhav"
-        />
-      </div>
-      <div>
-        <label for="password">Password: </label>
-        <input
-          class="border border-white"
-          type="password"
-          id="password"
-          placeholder="somethingstrong like anubhav"
-        />
-      </div>
-      <button type="submit" class="bg-white text-zinc-800">Submit</button>
+{% extends 'base.html' %} {% block title %}Sign in — PyroKube{% endblock %} {%
+block content %}
+<div class="mx-auto flex w-full max-w-sm flex-col gap-4 pt-16">
+  <div class="flex flex-col gap-1">
+    <span class="font-mono text-xs tracking-[0.18em] text-slate uppercase">
+      PyroKube
+    </span>
+    <b class="text-xl font-bold tracking-tight">Sign in</b>
+  </div>
+
+  {% if error %}
+  <div class="flex gap-3 border border-l-4 border-crit bg-surface p-3 text-sm">
+    <span class="pt-0.5 font-mono text-xs tracking-[0.12em] text-crit uppercase">
+      Error
+    </span>
+    <span>Incorrect password. Try again.</span>
+  </div>
+  {% endif %}
+
+  <form action="/login" method="post" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <label
+        for="password"
+        class="font-mono text-xs tracking-[0.12em] text-slate uppercase"
+      >
+        Password
+      </label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        required
+        autofocus
+        autocomplete="current-password"
+        placeholder="admin password"
+        class="w-full border bg-ink px-3 py-2.5 font-mono text-paper placeholder:text-slate focus:outline-2 focus:outline-offset-1 focus:outline-ember {% if error %}border-crit{% else %}border-rule-strong{% endif %}"
+      />
     </div>
+    <button
+      type="submit"
+      class="bg-ember px-4 py-2.5 font-semibold text-ink hover:bg-ember-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper"
+    >
+      Sign in
+    </button>
   </form>
 </div>
 {% endblock %}

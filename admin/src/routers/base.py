@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Request, status
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Request
 
 from core.config import templates
 

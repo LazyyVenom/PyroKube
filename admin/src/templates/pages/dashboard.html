@@ -1,0 +1,94 @@
+{% extends 'base.html' %} {% block title %}Dashboard — PyroKube{% endblock %} {%
+block content %}
+<div
+  class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-rule-strong pb-3"
+>
+  <div class="flex items-center gap-2">
+    <span class="size-3.5 bg-ember"></span>
+    <b class="text-lg font-extrabold tracking-tight">PyroKube</b>
+  </div>
+  <div class="flex items-center gap-3">
+    <span class="font-mono text-xs text-slate">signed in as admin</span>
+    <a
+      href="/logout"
+      class="border border-rule-strong px-3 py-1.5 text-sm font-semibold text-paper hover:bg-paper hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper"
+    >
+      Log out
+    </a>
+  </div>
+</div>
+
+<div class="flex flex-col gap-3 pt-6">
+  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="border border-l-4 border-rule border-l-ember bg-surface">
+      <div
+        class="flex items-center justify-between gap-2 border-b border-rule bg-surface-alt px-3 py-2"
+      >
+        <span class="font-mono text-xs tracking-[0.12em] text-slate uppercase">
+          Cluster
+        </span>
+        <span
+          class="inline-flex items-center gap-1.5 border border-current px-2 py-0.5 font-mono text-xs tracking-[0.1em] text-slate uppercase"
+        >
+          <span class="size-1.5 bg-current"></span>Not connected
+        </span>
+      </div>
+      <div class="px-3 py-4 font-mono text-3xl font-semibold tabular-nums">
+        —
+        <small class="mt-2 block text-xs font-normal tracking-wide text-slate">
+          kube-setup is not wired up yet
+        </small>
+      </div>
+    </div>
+
+    <div class="border border-rule bg-surface">
+      <div
+        class="flex items-center justify-between gap-2 border-b border-rule bg-surface-alt px-3 py-2"
+      >
+        <span class="font-mono text-xs tracking-[0.12em] text-slate uppercase">
+          Nodes
+        </span>
+      </div>
+      <div class="px-3 py-4 font-mono text-3xl font-semibold tabular-nums">
+        —
+        <small class="mt-2 block text-xs font-normal tracking-wide text-slate">
+          awaiting a cluster
+        </small>
+      </div>
+    </div>
+
+    <div class="border border-rule bg-surface">
+      <div
+        class="flex items-center justify-between gap-2 border-b border-rule bg-surface-alt px-3 py-2"
+      >
+        <span class="font-mono text-xs tracking-[0.12em] text-slate uppercase">
+          Pods
+        </span>
+      </div>
+      <div class="px-3 py-4 font-mono text-3xl font-semibold tabular-nums">
+        —
+        <small class="mt-2 block text-xs font-normal tracking-wide text-slate">
+          awaiting a cluster
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="border border-rule bg-surface">
+    <div
+      class="border-b border-rule bg-surface-alt px-3 py-2 font-mono text-xs tracking-[0.12em] text-slate uppercase"
+    >
+      Session
+    </div>
+    <div
+      id="status"
+      hx-get="/dashboard/status"
+      hx-trigger="load, every 30s"
+      hx-swap="innerHTML"
+      class="p-4"
+    >
+      <p class="font-mono text-sm text-slate">Loading session status…</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

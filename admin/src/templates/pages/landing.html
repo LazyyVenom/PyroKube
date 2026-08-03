@@ -1,11 +1,25 @@
 {% extends 'base.html' %} {% block content %}
-<div class="text-center">
-  <div class="text-3xl">Hey There PyroKube Here</div>
-  <div>
-    Wanna Login?
-    <div class="text-blue-400">
-      <a href="/login">Try Here!</a>
-    </div>
+<div class="flex items-center justify-between gap-3 border-b-2 border-rule-strong pb-3">
+  <div class="flex items-center gap-2">
+    <span class="size-3.5 bg-ember"></span>
+    <b class="text-lg font-extrabold tracking-tight">PyroKube</b>
   </div>
+  <span class="font-mono text-xs text-slate">v0.1.0</span>
+</div>
+
+<div class="flex flex-col items-start gap-4 pt-12">
+  <h1 class="text-4xl font-extrabold tracking-tight text-balance">
+    Kubernetes provisioning, self-hosted.
+  </h1>
+  <p class="max-w-md text-paper-soft">
+    Spin up clusters, watch pods, and read charts from one flat console. No
+    dashboards you didn't ask for.
+  </p>
+  <a
+    href="/login"
+    class="bg-ember px-4 py-2.5 font-semibold text-ink hover:bg-ember-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper"
+  >
+    Sign in
+  </a>
 </div>
 {% endblock %}
