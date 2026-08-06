@@ -1,0 +1,170 @@
+<div class="border border-rule-strong bg-surface p-5 flex flex-col gap-4">
+  <!-- Header & Search Controls -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-rule pb-3">
+    <div>
+      <h2 class="font-bold text-base text-paper">Running Pods</h2>
+    </div>
+
+    <!-- Search Input Bar -->
+    <div class="flex items-center gap-2">
+      <div class="relative w-full md:w-72">
+        <input type="text" id="pod-search-input" onkeyup="filterPods()" placeholder="Search pods or tags..."
+          class="w-full bg-ink border border-rule-strong px-3 py-1.5 font-mono text-xs text-paper placeholder:text-slate focus:border-ember focus:outline-none">
+      </div>
+    </div>
+  </div>
+
+  <!-- Running Pods Table -->
+  <div class="overflow-x-auto">
+    <table class="w-full text-left font-mono text-xs" id="pods-table">
+      <thead>
+        <tr class="border-b border-rule bg-surface-alt text-slate uppercase text-[10px] tracking-wider">
+          <th class="py-2.5 px-3">Pod</th>
+          <th class="py-2.5 px-3">Resources</th>
+          <th class="py-2.5 px-3">Status</th>
+          <th class="py-2.5 px-3 text-right"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-rule" id="pods-tbody">
+        <!-- Pod 1: Admin Frontend -->
+        <tr class="pod-row hover:bg-surface-alt/50 transition-colors" data-pod-id="pod-admin" data-search-target="pyrokube-admin frontend">
+          <td class="py-3 px-3">
+            <div class="flex items-center gap-2">
+              <span class="font-sans font-bold text-paper text-sm pod-name">pyrokube-admin</span>
+              <span class="pod-tag-pill bg-surface-alt border border-rule px-2 py-0.5 font-mono text-[10px] text-kube font-semibold">frontend</span>
+            </div>
+          </td>
+          <td class="py-3 px-3 text-paper-soft">45m | 128MB</td>
+          <td class="py-3 px-3">
+            <span class="inline-flex items-center gap-1.5 text-ok font-semibold">
+              <span class="size-1.5 rounded-full bg-ok"></span>Running
+            </span>
+          </td>
+          <td class="py-3 px-3 text-right relative">
+            <div class="relative inline-block text-left">
+              <button onclick="togglePodMenu(event, 'menu-pod-admin')" class="px-2 py-1 text-slate hover:text-paper hover:bg-surface-alt font-bold text-base leading-none transition-colors border border-transparent hover:border-rule">
+                ⋮
+              </button>
+              <div id="menu-pod-admin" class="pod-action-menu hidden absolute right-0 mt-1 w-32 border border-rule-strong bg-surface p-1 shadow-xl z-20 font-mono text-xs text-left">
+                <button onclick="handlePodAction('Logs', 'pyrokube-admin')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
+                  View Logs
+                </button>
+                <button onclick="handlePodAction('Restart', 'pyrokube-admin')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
+                  Restart
+                </button>
+                <button onclick="handlePodAction('Stop', 'pyrokube-admin')" class="w-full text-left px-2.5 py-1.5 text-crit hover:bg-surface-alt transition-colors">
+                  Stop Pod
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Pod 2: PostgreSQL -->
+        <tr class="pod-row hover:bg-surface-alt/50 transition-colors" data-pod-id="pod-postgres" data-search-target="postgres-primary database">
+          <td class="py-3 px-3">
+            <div class="flex items-center gap-2">
+              <span class="font-sans font-bold text-paper text-sm pod-name">postgres-primary</span>
+              <span class="pod-tag-pill bg-surface-alt border border-rule px-2 py-0.5 font-mono text-[10px] text-ember font-semibold">database</span>
+            </div>
+          </td>
+          <td class="py-3 px-3 text-paper-soft">120m | 512MB</td>
+          <td class="py-3 px-3">
+            <span class="inline-flex items-center gap-1.5 text-ok font-semibold">
+              <span class="size-1.5 rounded-full bg-ok"></span>Running
+            </span>
+          </td>
+          <td class="py-3 px-3 text-right relative">
+            <div class="relative inline-block text-left">
+              <button onclick="togglePodMenu(event, 'menu-pod-postgres')" class="px-2 py-1 text-slate hover:text-paper hover:bg-surface-alt font-bold text-base leading-none transition-colors border border-transparent hover:border-rule">
+                ⋮
+              </button>
+              <div id="menu-pod-postgres" class="pod-action-menu hidden absolute right-0 mt-1 w-32 border border-rule-strong bg-surface p-1 shadow-xl z-20 font-mono text-xs text-left">
+                <button onclick="handlePodAction('Logs', 'postgres-primary')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
+                  View Logs
+                </button>
+                <button onclick="handlePodAction('Restart', 'postgres-primary')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
+                  Restart
+                </button>
+                <button onclick="handlePodAction('Stop', 'postgres-primary')" class="w-full text-left px-2.5 py-1.5 text-crit hover:bg-surface-alt transition-colors">
+                  Stop Pod
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Pod 3: Redis Cache -->
+        <tr class="pod-row hover:bg-surface-alt/50 transition-colors" data-pod-id="pod-redis" data-search-target="redis-cache cache">
+          <td class="py-3 px-3">
+            <div class="flex items-center gap-2">
+              <span class="font-sans font-bold text-paper text-sm pod-name">redis-cache</span>
+              <span class="pod-tag-pill bg-surface-alt border border-rule px-2 py-0.5 font-mono text-[10px] text-crit font-semibold">cache</span>
+            </div>
+          </td>
+          <td class="py-3 px-3 text-paper-soft">15m | 64MB</td>
+          <td class="py-3 px-3">
+            <span class="inline-flex items-center gap-1.5 text-ok font-semibold">
+              <span class="size-1.5 rounded-full bg-ok"></span>Running
+            </span>
+          </td>
+          <td class="py-3 px-3 text-right relative">
+            <div class="relative inline-block text-left">
+              <button onclick="togglePodMenu(event, 'menu-pod-redis')" class="px-2 py-1 text-slate hover:text-paper hover:bg-surface-alt font-bold text-base leading-none transition-colors border border-transparent hover:border-rule">
+                ⋮
+              </button>
+              <div id="menu-pod-redis" class="pod-action-menu hidden absolute right-0 mt-1 w-32 border border-rule-strong bg-surface p-1 shadow-xl z-20 font-mono text-xs text-left">
+                <button onclick="handlePodAction('Logs', 'redis-cache')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
+                  View Logs
+                </button>
+                <button onclick="handlePodAction('Restart', 'redis-cache')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
+                  Restart
+                </button>
+                <button onclick="handlePodAction('Stop', 'redis-cache')" class="w-full text-left px-2.5 py-1.5 text-crit hover:bg-surface-alt transition-colors">
+                  Stop Pod
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  function filterPods() {
+    const input = document.getElementById('pod-search-input').value.toLowerCase().trim();
+    const rows = document.querySelectorAll('.pod-row');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      const searchTarget = (row.getAttribute('data-search-target') + ' ' + row.innerText).toLowerCase();
+      if (searchTarget.includes(input)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  function togglePodMenu(e, menuId) {
+    e.stopPropagation();
+    document.querySelectorAll('.pod-action-menu').forEach(menu => {
+      if (menu.id !== menuId) menu.classList.add('hidden');
+    });
+    const targetMenu = document.getElementById(menuId);
+    if (targetMenu) {
+      targetMenu.classList.toggle('hidden');
+    }
+  }
+
+  function handlePodAction(action, podName) {
+    alert(`${action} command executed for ${podName}`);
+    document.querySelectorAll('.pod-action-menu').forEach(menu => menu.classList.add('hidden'));
+  }
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.pod-action-menu').forEach(menu => menu.classList.add('hidden'));
+  });
+</script>
