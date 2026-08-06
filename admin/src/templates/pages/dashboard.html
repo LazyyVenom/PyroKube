@@ -1,21 +1,169 @@
 {% extends 'base.html' %} {% block title %}Dashboard — PyroKube{% endblock %} {%
 block content %}
-<div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-rule-strong pb-3">
-  <div class="flex items-center gap-2">
-    <span class="size-3.5 bg-ember"></span>
-    <b class="text-lg font-extrabold tracking-tight">PyroKube</b>
+<div class="flex flex-col gap-6">
+  <!-- Top Navigation Header -->
+  <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-rule-strong pb-4">
+    <div class="flex items-center gap-3">
+      <span class="size-4 bg-ember"></span>
+      <b class="text-xl font-extrabold tracking-tight">PyroKube</b>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <a href="/logout"
+        class="border border-rule-strong px-3.5 py-1.5 text-xs font-mono tracking-wider text-paper uppercase hover:bg-paper hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper">
+        Log out
+      </a>
+    </div>
   </div>
-  <div class="flex items-center gap-3">
-    <a href="/logout"
-      class="border border-rule-strong px-3 py-1.5 text-sm font-semibold text-paper hover:bg-paper hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper">
-      Log out
-    </a>
+
+  <!-- Dashboard Overview & Filters -->
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">Services & Provisioning</h1>
+        <p class="text-sm text-paper-soft mt-1">
+          Deploy and manage infrastructure databases, storage backends, and container registries.
+        </p>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="flex items-center gap-1 border border-rule-strong bg-surface p-1 text-xs font-mono">
+        <button onclick="filterServices('all')" id="tab-all"
+          class="tab-btn active-tab px-3 py-1.5 font-semibold transition-colors bg-ember text-ink">
+          All ({{ services|length }})
+        </button>
+        <button onclick="filterServices('database')" id="tab-database"
+          class="tab-btn px-3 py-1.5 text-paper-soft hover:text-paper transition-colors">
+          Databases (5)
+        </button>
+        <button onclick="filterServices('uploads')" id="tab-uploads"
+          class="tab-btn px-3 py-1.5 text-paper-soft hover:text-paper transition-colors">
+          Uploads (1)
+        </button>
+        <button onclick="filterServices('registry')" id="tab-registry"
+          class="tab-btn px-3 py-1.5 text-paper-soft hover:text-paper transition-colors">
+          Registry (1)
+        </button>
+      </div>
+    </div>
+
+    <!-- Reusable Services Grid Component Loop -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 pt-2" id="services-grid">
+      {% for service in services %}
+        {% include 'components/service_card.html' %}
+      {% endfor %}
+    </div>
   </div>
 </div>
 
-<div class="flex flex-col gap-3 pt-6">
-  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-    <div> Hello world </div>
+<!-- Deployment Configuration Modal -->
+<dialog id="deploy-modal" class="bg-transparent backdrop:bg-black/75 backdrop:backdrop-blur-sm p-4 rounded-none max-w-lg w-full">
+  <div class="border-2 border-rule-strong bg-surface p-6 shadow-2xl text-paper">
+    <div class="flex items-center justify-between border-b border-rule pb-3">
+      <div class="flex items-center gap-2">
+        <span class="size-2.5 bg-ember"></span>
+        <h2 class="font-bold text-lg" id="modal-service-name">Service Deployment</h2>
+      </div>
+      <button onclick="closeDeployModal()" class="font-mono text-xs text-slate hover:text-paper border border-rule px-2 py-0.5">
+        ESC ✕
+      </button>
+    </div>
+
+    <form onsubmit="submitDeployment(event)" class="flex flex-col gap-4 pt-4">
+      <div class="flex flex-col gap-1">
+        <label class="font-mono text-[11px] text-slate uppercase tracking-wider">Service Type</label>
+        <input type="text" id="modal-service-desc" readonly class="bg-surface-alt border border-rule px-3 py-2 font-mono text-xs text-paper-soft cursor-not-allowed">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1">
+          <label for="cluster-namespace" class="font-mono text-[11px] text-slate uppercase tracking-wider">Namespace</label>
+          <input type="text" id="cluster-namespace" value="default" required class="bg-ink border border-rule-strong px-3 py-2 text-xs font-mono text-paper focus:border-ember focus:outline-none">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="service-port" class="font-mono text-[11px] text-slate uppercase tracking-wider">Target Port</label>
+          <input type="text" id="service-port" required class="bg-ink border border-rule-strong px-3 py-2 text-xs font-mono text-paper focus:border-ember focus:outline-none">
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="storage-size" class="font-mono text-[11px] text-slate uppercase tracking-wider">Persistent Storage Volume</label>
+        <select id="storage-size" class="bg-ink border border-rule-strong px-3 py-2 text-xs font-mono text-paper focus:border-ember focus:outline-none">
+          <option value="10Gi">10 GiB (Standard PersistentVolume)</option>
+          <option value="20Gi">20 GiB (Recommended)</option>
+          <option value="50Gi">50 GiB (High Throughput)</option>
+          <option value="100Gi">100 GiB (Enterprise)</option>
+        </select>
+      </div>
+
+      <div id="modal-success-alert" class="hidden border border-ok bg-surface-alt p-3 font-mono text-xs text-ok">
+        ✓ Deployment command queued for cluster provisioner.
+      </div>
+
+      <div class="flex items-center justify-end gap-3 border-t border-rule pt-4 mt-2">
+        <button type="button" onclick="closeDeployModal()" class="border border-rule-strong px-4 py-2 text-xs font-mono text-paper-soft hover:bg-paper hover:text-ink">
+          Cancel
+        </button>
+        <button type="submit" id="submit-btn" class="bg-ember px-5 py-2 text-xs font-semibold text-ink hover:bg-ember-lift">
+          Confirm & Provision
+        </button>
+      </div>
+    </form>
   </div>
-</div>
+</dialog>
+
+<script>
+  function filterServices(category) {
+    const cards = document.querySelectorAll('.service-card');
+    const buttons = document.querySelectorAll('.tab-btn');
+
+    buttons.forEach(btn => {
+      btn.classList.remove('active-tab', 'bg-ember', 'text-ink', 'font-semibold');
+      btn.classList.add('text-paper-soft');
+    });
+
+    const activeBtn = document.getElementById(`tab-${category}`);
+    if (activeBtn) {
+      activeBtn.classList.add('active-tab', 'bg-ember', 'text-ink', 'font-semibold');
+      activeBtn.classList.remove('text-paper-soft');
+    }
+
+    cards.forEach(card => {
+      if (category === 'all' || card.getAttribute('data-category') === category) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  function openDeployModal(name, port, desc) {
+    document.getElementById('modal-service-name').innerText = `Deploy ${name}`;
+    document.getElementById('modal-service-desc').value = desc;
+    document.getElementById('service-port').value = port;
+    document.getElementById('modal-success-alert').classList.add('hidden');
+    document.getElementById('submit-btn').style.display = 'inline-block';
+    
+    const modal = document.getElementById('deploy-modal');
+    modal.showModal();
+  }
+
+  function closeDeployModal() {
+    const modal = document.getElementById('deploy-modal');
+    modal.close();
+  }
+
+  function submitDeployment(e) {
+    e.preventDefault();
+    const alert = document.getElementById('modal-success-alert');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    alert.classList.remove('hidden');
+    submitBtn.style.display = 'none';
+    
+    setTimeout(() => {
+      closeDeployModal();
+    }, 1800);
+  }
+</script>
 {% endblock %}
