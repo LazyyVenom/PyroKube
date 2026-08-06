@@ -1,15 +1,19 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="dark" />
-    <title>{% block title %}PyroKube{% endblock %}</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>{% block title %}PyroKube{% endblock %}</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='assets/favicon.ico') }}" />
 
-    <style type="text/tailwindcss">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @import "tailwindcss";
+
       @theme {
         --color-ink: #101419;
         --color-surface: #171c23;
@@ -32,10 +36,12 @@
           Consolas, "Liberation Mono", monospace;
       }
     </style>
-  </head>
-  <body class="bg-ink text-paper font-sans antialiased">
-    <main class="mx-auto max-w-5xl px-6 py-10">
-      {% block content %}{% endblock %}
-    </main>
-  </body>
+</head>
+
+<body class="bg-ink text-paper font-sans antialiased">
+  <main class="mx-auto max-w-5xl px-6 py-10">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+
 </html>
