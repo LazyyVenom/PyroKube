@@ -2,7 +2,7 @@
   <!-- Header & Search Controls -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-rule pb-3">
     <div>
-      <h2 class="font-bold text-base text-paper">Running Services</h2>
+      <h2 class="font-bold text-base text-paper">Your Services</h2>
     </div>
 
     <!-- Search Input Bar -->
@@ -146,7 +146,7 @@
 </div>
 
 <!-- Service Specs & Information Details Modal Popup -->
-<dialog id="service-details-modal" class="bg-transparent backdrop:bg-black/75 backdrop:backdrop-blur-sm p-4 rounded-none max-w-lg w-full">
+<dialog id="service-details-modal" class="fixed inset-0 m-auto bg-transparent backdrop:bg-black/75 backdrop:backdrop-blur-sm p-4 rounded-none max-w-lg w-full">
   <div class="border-2 border-rule-strong bg-surface p-6 shadow-2xl text-paper flex flex-col gap-4">
     <div class="flex items-center justify-between border-b border-rule pb-3">
       <div class="flex items-center gap-2.5">
@@ -201,7 +201,7 @@
       <button type="button" onclick="closeServiceDetailsModal()" class="border border-rule-strong px-4 py-2 text-xs font-mono text-paper-soft hover:bg-paper hover:text-ink transition-colors">
         Close
       </button>
-      <button type="button" onclick="handleModalLogView()" class="bg-ember px-4 py-2 text-xs font-semibold text-ink hover:bg-ember-lift transition-colors">
+      <button type="button" onclick="handleModalLogView()" class="bg-ember px-4 py-2 text-xs font-semibold text-paper hover:bg-ember-lift transition-colors">
         View Live Logs
       </button>
     </div>

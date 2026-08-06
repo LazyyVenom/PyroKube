@@ -1,47 +1,59 @@
-{% extends 'base.html' %} {% block title %}Sign in — PyroKube{% endblock %} {%
-block content %}
-<div class="mx-auto flex w-full max-w-sm flex-col gap-4 pt-16">
-  <div class="flex flex-col gap-1">
-    <span class="font-mono text-xs tracking-[0.18em] text-slate uppercase">
-      PyroKube
+{% extends 'base.html' %} {% block title %}Sign in — PyroKube{% endblock %} {% block content %}
+<div class="min-h-[75vh] flex flex-col items-center justify-center text-center gap-6 py-6">
+
+  <!-- Centered Logo & Header -->
+  <div class="flex flex-col items-center gap-3">
+    <span class="size-8 bg-ember shadow-lg shadow-ember/20"></span>
+    <b class="text-2xl font-extrabold tracking-tight">PyroKube</b>
+    <span class="font-mono text-xs text-slate border border-rule px-2.5 py-0.5 bg-surface-alt uppercase tracking-wider">
+      Admin Authentication
     </span>
-    <b class="text-xl font-bold tracking-tight">Sign in</b>
   </div>
 
-  {% if error %}
-  <div class="flex gap-3 border border-l-4 border-crit bg-surface p-3 text-sm">
-    <span class="pt-0.5 font-mono text-xs tracking-[0.12em] text-crit uppercase">
-      Error
-    </span>
-    <span>Incorrect password. Try again.</span>
-  </div>
-  {% endif %}
-
-  <form action="/login" method="post" class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5">
-      <label
-        for="password"
-        class="font-mono text-xs tracking-[0.12em] text-slate uppercase"
-      >
-        Password
-      </label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        required
-        autofocus
-        autocomplete="current-password"
-        placeholder="admin password"
-        class="w-full border bg-ink px-3 py-2.5 font-mono text-paper placeholder:text-slate focus:outline-2 focus:outline-offset-1 focus:outline-ember {% if error %}border-crit{% else %}border-rule-strong{% endif %}"
-      />
+  <!-- Form Container Card -->
+  <div class="w-full max-w-sm border border-rule-strong bg-surface p-6 shadow-2xl flex flex-col gap-4">
+    {% if error %}
+    <div class="flex items-center justify-center gap-2 border border-l-4 border-crit bg-surface-alt p-3 font-mono text-xs text-crit">
+      <span>✕ Incorrect password. Try again.</span>
     </div>
-    <button
-      type="submit"
-      class="bg-ember px-4 py-2.5 font-semibold text-ink hover:bg-ember-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper"
-    >
-      Sign in
-    </button>
-  </form>
+    {% endif %}
+
+    <form action="/login" method="post" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1.5">
+        <label
+          for="password"
+          class="font-mono text-xs tracking-[0.12em] text-slate uppercase text-center block"
+        >
+          Admin Password
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          autofocus
+          autocomplete="current-password"
+          placeholder="Enter password..."
+          class="w-full border bg-ink px-3 py-2.5 font-mono text-xs text-paper placeholder:text-slate text-center focus:outline-2 focus:outline-offset-1 focus:outline-ember {% if error %}border-crit{% else %}border-rule-strong{% endif %}"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-ember px-4 py-2.5 font-semibold text-xs text-paper hover:bg-ember-lift transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper cursor-pointer"
+      >
+        Sign in to Console →
+      </button>
+    </form>
+  </div>
+
+  <!-- Back Button -->
+  <div>
+    <a href="/"
+      class="font-mono text-xs text-paper-soft hover:text-paper transition-colors inline-flex items-center gap-1.5 border border-rule-strong bg-surface px-4 py-2">
+      ← Back to Home
+    </a>
+  </div>
+
 </div>
 {% endblock %}

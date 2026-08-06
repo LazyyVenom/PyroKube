@@ -22,7 +22,7 @@ SERVICES_CATALOG = [
         "port": "5432",
         "port_label": "Default Port",
         "version": "v16.2",
-        "status": "Ready",
+        "status": "Active",
         "subtitle": "Postgres Relational DB",
     },
     {
@@ -36,7 +36,7 @@ SERVICES_CATALOG = [
         "port": "27017",
         "port_label": "Default Port",
         "version": "v7.0.5",
-        "status": "Ready",
+        "status": "InActive",
         "subtitle": "NoSQL Document Store",
     },
     {
@@ -50,7 +50,7 @@ SERVICES_CATALOG = [
         "port": "6379",
         "port_label": "Default Port",
         "version": "v7.2.4",
-        "status": "Ready",
+        "status": "Failed",
         "subtitle": "In-Memory Cache & Key-Value",
     },
     {
@@ -64,7 +64,7 @@ SERVICES_CATALOG = [
         "port": "5672 / 15672",
         "port_label": "Default Port",
         "version": "v3.13.0",
-        "status": "Ready",
+        "status": "InActive",
         "subtitle": "AMQP Message Queue Broker",
     },
     {
@@ -78,7 +78,7 @@ SERVICES_CATALOG = [
         "port": "4080",
         "port_label": "Default Port",
         "version": "v0.4.8",
-        "status": "Ready",
+        "status": "Active",
         "subtitle": "Search Engine & Log Indexer",
     },
     {
@@ -92,7 +92,7 @@ SERVICES_CATALOG = [
         "port": "3900",
         "port_label": "S3 API Port",
         "version": "v1.0.0",
-        "status": "Ready",
+        "status": "Active",
         "subtitle": "S3 Object Storage",
     },
     {
@@ -106,18 +106,22 @@ SERVICES_CATALOG = [
         "port": "5000",
         "port_label": "Registry Port",
         "version": "OCI v2",
-        "status": "Ready",
+        "status": "InActive",
         "subtitle": "OCI Container Registry",
     },
 ]
 
 
+STATUS_ORDER = {"Failed": 0, "Active": 1, "InActive": 2}
+
+
 @router.get("/dashboard")
 def dashboard(request: Request):
+    sorted_services = sorted(SERVICES_CATALOG, key=lambda s: STATUS_ORDER.get(s.get("status", ""), 3))
     return templates.TemplateResponse(
         request,
         "pages/dashboard.html",
-        {"services": SERVICES_CATALOG},
+        {"services": sorted_services},
     )
 
 

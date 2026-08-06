@@ -1,25 +1,43 @@
 {% extends 'base.html' %} {% block content %}
-<div class="flex items-center justify-between gap-3 border-b-2 border-rule-strong pb-3">
-  <div class="flex items-center gap-2">
-    <span class="size-3.5 bg-ember"></span>
-    <b class="text-lg font-extrabold tracking-tight">PyroKube</b>
+<div class="min-h-[75vh] flex flex-col items-center justify-center text-center gap-6 py-6">
+  <!-- Centered Logo -->
+  <div class="flex flex-col items-center gap-3">
+    <span class="size-8 bg-ember shadow-lg shadow-ember/20"></span>
+    <b class="text-2xl font-extrabold tracking-tight">PyroKube</b>
+    <span class="font-mono text-xs text-slate border border-rule px-2.5 py-0.5 bg-surface-alt">
+      v0.1.0
+    </span>
   </div>
-  <span class="font-mono text-xs text-slate">v0.1.0</span>
-</div>
 
-<div class="flex flex-col items-start gap-4 pt-12">
-  <h1 class="text-4xl font-extrabold tracking-tight text-balance">
-    Kubernetes provisioning, self-hosted.
-  </h1>
-  <p class="max-w-md text-paper-soft">
-    Spin up clusters, watch pods, and read charts from one flat console. No
-    dashboards you didn't ask for.
-  </p>
-  <a
-    href="/login"
-    class="bg-ember px-4 py-2.5 font-semibold text-ink hover:bg-ember-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper"
-  >
-    Sign in
-  </a>
+  <!-- Hero Content -->
+  <div class="flex flex-col items-center gap-3 max-w-lg">
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+      Convert your Self Hosting → Managed Hosting*
+    </h1>
+    <p class="text-paper-soft text-base sm:text-lg font-mono font-medium tracking-wide">
+      You get what you need
+    </p>
+  </div>
+
+  <!-- Centered Action Buttons -->
+  <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+    <a
+      href="/login"
+      class="bg-ember px-6 py-3 font-semibold text-sm text-paper hover:bg-ember-lift transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper"
+    >
+      Sign in →
+    </a>
+    <a
+      href="https://github.com/LazyyVenom/PyroKube"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="border border-rule-strong bg-surface px-6 py-3 font-mono text-sm text-paper hover:bg-surface-alt hover:border-paper transition-all flex items-center gap-2"
+    >
+      <svg class="size-4 fill-current" viewBox="0 0 24 24">
+        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+      </svg>
+      GitHub
+    </a>
+  </div>
 </div>
 {% endblock %}
