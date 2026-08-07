@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from models.dashboard import CatalogService, ServerStatus, UserService
+from models.dashboard import CatalogService, DatabaseInstance, ServerStatus, UserService
 
 
 def seed_database(db: Session):
@@ -86,6 +86,28 @@ def seed_database(db: Session):
             ),
         ]
         db.add_all(user_services)
+
+    # Seed Database Instances if empty
+    if not db.query(DatabaseInstance).first():
+        db_instances = [
+            DatabaseInstance(
+                service_id="postgres",
+                db_name="pyrokube_main",
+                db_user="pyrokube_admin",
+                db_password="secret_db_password_123",
+                charset="UTF8",
+                status="Active",
+            ),
+            DatabaseInstance(
+                service_id="postgres",
+                db_name="analytics_db",
+                db_user="analytics_user",
+                db_password="analytics_db_password_456",
+                charset="UTF8",
+                status="Active",
+            ),
+        ]
+        db.add_all(db_instances)
 
     # Seed Catalog Services if empty
     if not db.query(CatalogService).first():

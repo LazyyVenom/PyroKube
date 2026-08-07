@@ -1,0 +1,41 @@
+<!-- Process Audit Logs & Kubernetes Lifecycle Log Modal -->
+<dialog id="process-logs-modal" class="backdrop:bg-ink/80 backdrop:backdrop-blur-xs bg-transparent p-0 w-full max-w-2xl">
+  <div class="border border-rule-strong bg-surface p-6 shadow-2xl flex flex-col gap-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-rule pb-3">
+      <div class="flex items-center gap-2.5">
+        <span class="size-3 bg-ok"></span>
+        <h3 class="font-bold text-base text-paper" id="process-logs-modal-title">Process Audit Trail</h3>
+      </div>
+      <button type="button" onclick="closeProcessLogsModal()" class="text-slate hover:text-paper text-lg font-bold">✕</button>
+    </div>
+
+    <!-- Logs Content Container (HTMX Target) -->
+    <div id="process-logs-body" class="bg-ink border border-rule p-4 font-mono text-xs max-h-96 overflow-y-auto flex flex-col gap-2">
+      <div class="text-slate italic">Loading process logs...</div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="flex items-center justify-between pt-2 border-t border-rule">
+      <span class="font-mono text-[10px] text-slate">Audit logs recorded in SQLite database</span>
+      <button type="button" onclick="closeProcessLogsModal()" class="border border-rule-strong px-4 py-2 text-xs font-mono text-paper-soft hover:bg-paper hover:text-ink transition-colors">
+        Close
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  function openProcessLogsModal(serviceId) {
+    document.getElementById('process-logs-modal-title').innerText = `Process Audit Logs - ${serviceId}`;
+    const modal = document.getElementById('process-logs-modal');
+    if (modal) modal.showModal();
+    
+    htmx.ajax('GET', `/dashboard/services/${serviceId}/process-logs`, {target: '#process-logs-body', swap: 'innerHTML'});
+  }
+
+  function closeProcessLogsModal() {
+    const modal = document.getElementById('process-logs-modal');
+    if (modal) modal.close();
+  }
+</script>

@@ -62,6 +62,9 @@
                 ⋮
               </button>
               <div id="menu-service-{{ service.id }}" class="service-action-menu hidden absolute right-0 mt-1 w-36 border border-rule-strong bg-surface p-1 shadow-xl z-20 font-mono text-xs text-left">
+                <button onclick="openProcessLogsModal('{{ service.id }}')" class="w-full text-left px-2.5 py-1.5 text-kube hover:bg-surface-alt font-semibold transition-colors">
+                  Audit Logs
+                </button>
                 <button onclick="handleServiceAction('Logs', '{{ service.name }}')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
                   View Logs
                 </button>

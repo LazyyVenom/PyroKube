@@ -53,3 +53,15 @@ class CatalogService(Base):
     version: Mapped[str] = mapped_column(String, default="v1.0")
     status: Mapped[str] = mapped_column(String, default="InActive")
     subtitle: Mapped[str] = mapped_column(String, default="")
+
+
+class DatabaseInstance(Base):
+    __tablename__ = "database_instances"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
+    service_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    db_name: Mapped[str] = mapped_column(String, nullable=False)
+    db_user: Mapped[str] = mapped_column(String, nullable=False)
+    db_password: Mapped[str] = mapped_column(String, nullable=False)
+    charset: Mapped[str] = mapped_column(String, default="UTF8")
+    status: Mapped[str] = mapped_column(String, default="Active")

@@ -1,0 +1,99 @@
+<!-- Interactive Service Provisioning & Database Deployment Modal -->
+<dialog id="deploy-service-modal" class="backdrop:bg-ink/80 backdrop:backdrop-blur-xs bg-transparent p-0 w-full max-w-lg">
+  <div class="border border-rule-strong bg-surface p-6 shadow-2xl flex flex-col gap-4">
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between border-b border-rule pb-3">
+      <div class="flex items-center gap-2.5">
+        <span class="size-3 bg-ember"></span>
+        <h3 class="font-bold text-base text-paper" id="deploy-modal-title">Deploy Managed Service</h3>
+      </div>
+      <button type="button" onclick="closeDeployModal()" class="text-slate hover:text-paper text-lg font-bold">✕</button>
+    </div>
+
+    <!-- Deployment Form -->
+    <form id="deploy-service-form" hx-post="/dashboard/catalog/deploy" hx-target="#dashboard-catalog-container" hx-swap="outerHTML" class="flex flex-col gap-4 font-mono text-xs">
+      <input type="hidden" id="deploy-service-id" name="service_id" value="" />
+
+      <!-- Service Info Badge -->
+      <div class="flex items-center justify-between bg-ink p-3 border border-rule">
+        <div>
+          <span class="text-slate text-[10px] block uppercase">Target Engine</span>
+          <span class="text-paper font-bold text-sm" id="deploy-modal-name">Service</span>
+        </div>
+        <div class="text-right">
+          <span class="text-slate text-[10px] block uppercase">Port / Protocol</span>
+          <span class="text-kube font-bold" id="deploy-modal-port">5432</span>
+        </div>
+      </div>
+
+      <!-- Form Inputs Grid -->
+      <div class="flex flex-col gap-3">
+        <!-- Service / Database Instance Name -->
+        <div class="flex flex-col gap-1">
+          <label for="deploy-instance-name" class="text-slate text-[10px] uppercase">Service / Database Name</label>
+          <input type="text" id="deploy-instance-name" name="instance_name" required placeholder="e.g. production-db"
+            class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper placeholder:text-slate focus:border-ember focus:outline-none">
+        </div>
+
+        <!-- Storage & Resources Grid -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label for="deploy-storage-gb" class="text-slate text-[10px] uppercase">Storage PVC (GB)</label>
+            <input type="number" id="deploy-storage-gb" name="storage_gb" value="20" min="1" max="500" required
+              class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ember focus:outline-none">
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="deploy-cpu-limit" class="text-slate text-[10px] uppercase">CPU Limit</label>
+            <select id="deploy-cpu-limit" name="cpu_limit" class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ember focus:outline-none">
+              <option value="500m">500m (0.5 Core)</option>
+              <option value="1000m" selected>1000m (1 Core)</option>
+              <option value="2000m">2000m (2 Cores)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Admin User Credentials -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label for="deploy-db-user" class="text-slate text-[10px] uppercase">Admin User</label>
+            <input type="text" id="deploy-db-user" name="db_user" value="admin" required
+              class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ember focus:outline-none">
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="deploy-db-password" class="text-slate text-[10px] uppercase">Password</label>
+            <input type="password" id="deploy-db-password" name="db_password" value="secure_pass_123" required
+              class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ember focus:outline-none">
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-rule">
+        <button type="button" onclick="closeDeployModal()" class="border border-rule-strong px-4 py-2 text-xs font-mono text-paper-soft hover:bg-paper hover:text-ink transition-colors">
+          Cancel
+        </button>
+        <button type="submit" onclick="closeDeployModal()" class="bg-ember px-5 py-2 text-xs font-semibold text-paper hover:bg-ember-lift transition-colors">
+          Deploy to Cluster →
+        </button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script>
+  function openDeployModal(serviceId, serviceName, port, subtitle) {
+    document.getElementById('deploy-service-id').value = serviceId;
+    document.getElementById('deploy-modal-title').innerText = `Provision ${serviceName}`;
+    document.getElementById('deploy-modal-name').innerText = serviceName;
+    document.getElementById('deploy-modal-port').innerText = port || 'Default';
+    document.getElementById('deploy-instance-name').value = `${serviceId}-primary`;
+    
+    const modal = document.getElementById('deploy-service-modal');
+    if (modal) modal.showModal();
+  }
+
+  function closeDeployModal() {
+    const modal = document.getElementById('deploy-service-modal');
+    if (modal) modal.close();
+  }
+</script>

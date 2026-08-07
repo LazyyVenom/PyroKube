@@ -1,13 +1,17 @@
 import time
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
 from core.auth import require_admin, token_expiry
 from core.config import templates
 from core.db import get_db
 from core.settings import setting
+from models.audit import ProcessLog
 from models.dashboard import CatalogService, ServerStatus, UserService
+from services.k8s import get_cluster_telemetry
+from services.k8s_service import PyroKubeK8sService
 from utils.format import humanize_seconds
 
 router = APIRouter(dependencies=[Depends(require_admin)])
@@ -15,9 +19,32 @@ router = APIRouter(dependencies=[Depends(require_admin)])
 STATUS_ORDER = {"Failed": 0, "Active": 1, "InActive": 2}
 
 
+def sync_telemetry_status(db: Session) -> ServerStatus:
+    telemetry = get_cluster_telemetry()
+    status = db.query(ServerStatus).first()
+    if not status:
+        status = ServerStatus(id=1)
+        db.add(status)
+
+    status.nodes_healthy = telemetry.get("nodes_healthy", 3)
+    status.nodes_total = telemetry.get("nodes_total", 3)
+    status.api_server_status = telemetry.get("api_server_status", "Ready")
+    status.cpu_usage_pct = telemetry.get("cpu_usage_pct", 18)
+    status.cpu_cores = telemetry.get("cpu_cores", 12)
+    status.memory_used_gb = telemetry.get("memory_used_gb", 4.2)
+    status.memory_max_gb = telemetry.get("memory_max_gb", 32.0)
+    status.storage_used_gb = telemetry.get("storage_used_gb", 120)
+    status.storage_max_gb = telemetry.get("storage_max_gb", 500)
+    status.storage_assigned_gb = telemetry.get("storage_assigned_gb", 250)
+
+    db.commit()
+    db.refresh(status)
+    return status
+
+
 @router.get("/dashboard")
 def dashboard(request: Request, db: Session = Depends(get_db)):
-    server_status = db.query(ServerStatus).first()
+    server_status = sync_telemetry_status(db)
     user_services = db.query(UserService).all()
     catalog_services = db.query(CatalogService).all()
     sorted_catalog = sorted(catalog_services, key=lambda s: STATUS_ORDER.get(s.status, 3))
@@ -35,7 +62,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
 
 @router.get("/dashboard/server-status")
 def server_status_partial(request: Request, db: Session = Depends(get_db)):
-    server_status = db.query(ServerStatus).first()
+    server_status = sync_telemetry_status(db)
     return templates.TemplateResponse(
         request,
         "components/server_status.html",
@@ -60,23 +87,13 @@ def user_service_action(
     action: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    service = db.query(UserService).filter(UserService.id == service_id).first()
-    if not service:
-        raise HTTPException(status_code=404, detail="Service not found")
-
     action_lower = action.lower()
     if action_lower == "stop":
-        service.status = "Stopped"
-        service.ready_pods = 0
+        PyroKubeK8sService.stop_service(db, service_id)
     elif action_lower == "start":
-        service.status = "Running"
-        service.ready_pods = service.total_pods
+        PyroKubeK8sService.start_service(db, service_id)
     elif action_lower == "restart":
-        service.status = "Running"
-        service.ready_pods = service.total_pods
-        service.restarts += 1
-
-    db.commit()
+        PyroKubeK8sService.restart_service(db, service_id)
 
     user_services = db.query(UserService).all()
     return templates.TemplateResponse(
@@ -84,6 +101,62 @@ def user_service_action(
         "components/running_containers.html",
         {"user_services": user_services},
     )
+
+
+@router.post("/dashboard/catalog/deploy")
+def deploy_catalog_service(
+    request: Request,
+    service_id: str = Form(...),
+    instance_name: str = Form(...),
+    storage_gb: int = Form(20),
+    cpu_limit: str = Form("1000m"),
+    db_user: str = Form("admin"),
+    db_password: str = Form("secure_pass"),
+    db: Session = Depends(get_db),
+):
+    PyroKubeK8sService.deploy_managed_service(
+        db=db,
+        service_id=service_id,
+        instance_name=instance_name,
+        storage_gb=storage_gb,
+        cpu_limit=cpu_limit,
+        db_user=db_user,
+        db_password=db_password,
+    )
+
+    user_services = db.query(UserService).all()
+    return templates.TemplateResponse(
+        request,
+        "components/running_containers.html",
+        {"user_services": user_services},
+    )
+
+
+@router.get("/dashboard/services/{service_id}/process-logs")
+def get_service_process_logs(service_id: str, db: Session = Depends(get_db)):
+    logs = (
+        db.query(ProcessLog)
+        .filter(ProcessLog.service_id == service_id)
+        .order_by(ProcessLog.timestamp.asc())
+        .all()
+    )
+    if not logs:
+        return HTMLResponse(
+            f"<div class='text-slate italic'>No process logs recorded for '{service_id}' yet.</div>"
+        )
+
+    html_items = []
+    for entry in logs:
+        level_color = "text-ok" if entry.level == "SUCCESS" else ("text-ember" if entry.level == "WARNING" else ("text-crit" if entry.level == "ERROR" else "text-paper-soft"))
+        timestamp_str = entry.timestamp.strftime("%H:%M:%S")
+        html_items.append(
+            f"<div class='flex items-start gap-2.5 hover:bg-surface-alt/40 p-1 font-mono text-xs'>"
+            f"<span class='text-slate text-[10px] whitespace-nowrap'>{timestamp_str}</span>"
+            f"<span class='font-bold uppercase text-[10px] px-1 bg-surface-alt {level_color}'>{entry.level}</span>"
+            f"<span class='text-paper font-medium'>{entry.message}</span>"
+            f"</div>"
+        )
+    return HTMLResponse("".join(html_items))
 
 
 @router.get("/dashboard/status")
