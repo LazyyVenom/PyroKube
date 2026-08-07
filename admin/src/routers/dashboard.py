@@ -1,5 +1,7 @@
 import time
 
+from typing import Optional
+
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
@@ -36,9 +38,26 @@ def sync_telemetry_status(db: Session) -> ServerStatus:
     status.storage_used_gb = telemetry.get("storage_used_gb", 120)
     status.storage_max_gb = telemetry.get("storage_max_gb", 500)
     status.storage_assigned_gb = telemetry.get("storage_assigned_gb", 250)
+    status.cpu_allocated_m = telemetry.get("cpu_allocated_m", 800)
+    status.memory_allocated_gb = telemetry.get("memory_allocated_gb", 0.6)
 
     db.commit()
     db.refresh(status)
+
+    # Pre-calculate UI percentages for clean template rendering
+    status.cpu_allocated_pct = round((status.cpu_allocated_m / status.cpu_cores) * 100, 1) if status.cpu_cores else 0
+    status.mem_pct = round((status.memory_used_gb / status.memory_max_gb) * 100, 1) if status.memory_max_gb else 0
+    status.mem_allocated_pct = round((status.memory_allocated_gb / status.memory_max_gb) * 100, 1) if status.memory_max_gb else 0
+    status.storage_used_pct = round((status.storage_used_gb / status.storage_max_gb) * 100, 1) if status.storage_max_gb else 0
+    status.storage_assigned_pct = round((status.storage_assigned_gb / status.storage_max_gb) * 100, 1) if status.storage_max_gb else 0
+
+    status.cpu_pct_css = f"{status.cpu_usage_pct or 0}%"
+    status.mem_pct_css = f"{status.mem_pct or 0}%"
+    status.storage_used_pct_css = f"{status.storage_used_pct or 0}%"
+    status.cpu_allocated_pct_css = f"{status.cpu_allocated_pct or 0}%"
+    status.mem_allocated_pct_css = f"{status.mem_allocated_pct or 0}%"
+    status.storage_assigned_pct_css = f"{status.storage_assigned_pct or 0}%"
+
     return status
 
 
@@ -104,17 +123,17 @@ def user_service_action(
 
 
 @router.post("/dashboard/catalog/deploy")
-def deploy_catalog_service(
+async def deploy_catalog_service(
     request: Request,
     service_id: str = Form(...),
     instance_name: str = Form(...),
     storage_gb: int = Form(20),
     cpu_limit: str = Form("1000m"),
-    db_user: str = Form("admin"),
-    db_password: str = Form("secure_pass"),
+    db_user: Optional[str] = Form(None),
+    db_password: Optional[str] = Form(None),
     db: Session = Depends(get_db),
 ):
-    PyroKubeK8sService.deploy_managed_service(
+    await PyroKubeK8sService.deploy_managed_service(
         db=db,
         service_id=service_id,
         instance_name=instance_name,

@@ -24,8 +24,20 @@ def get_db():
 def init_db():
     from models import Base
     from utils.seed import seed_database
+    from sqlalchemy import inspect, text
 
     Base.metadata.create_all(bind=engine)
+
+    # Auto-migrate new columns for SQLite database
+    inspector = inspect(engine)
+    if "server_status" in inspector.get_table_names():
+        columns = [c["name"] for c in inspector.get_columns("server_status")]
+        with engine.begin() as conn:
+            if "cpu_allocated_m" not in columns:
+                conn.execute(text("ALTER TABLE server_status ADD COLUMN cpu_allocated_m INTEGER DEFAULT 800"))
+            if "memory_allocated_gb" not in columns:
+                conn.execute(text("ALTER TABLE server_status ADD COLUMN memory_allocated_gb FLOAT DEFAULT 0.6"))
+
     db = SessionLocal()
     try:
         seed_database(db)

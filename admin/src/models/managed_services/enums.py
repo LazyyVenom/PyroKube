@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ManagedServiceCategory(str, Enum):
     POSTGRES = "postgres"
     MONGODB = "mongodb"
@@ -7,5 +8,4 @@ class ManagedServiceCategory(str, Enum):
     RABBITMQ = "rabbitmq"
     ZINCSEARCH = "zincsearch"
     GARAGE = "garage"
-
-
+    REGISTRY = "registry"

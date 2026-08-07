@@ -1,29 +1,31 @@
 import time
+from typing import Any, Optional
 from sqlalchemy.orm import Session
 
-from models.dashboard import CatalogService, DatabaseInstance, UserService
+from models.dashboard import UserService
 from services.k8s import get_k8s_client
 from services.logger import log_process
+from services.managed_services.factory import PyroManagedServiceFactory
 
 
 class PyroKubeK8sService:
     """
     Centralized Kubernetes Abstraction Layer for PyroKube.
-    All cluster operations (Deployments, Services, ConfigMaps, Secrets, PVCs, Logs)
-    pass through this service with process audit logging.
+    Delegates managed service engine workflows to polymorphic PyroManagedService subclasses
+    via PyroManagedServiceFactory.
     """
 
     @staticmethod
-    def deploy_managed_service(
+    async def deploy_managed_service(
         db: Session,
         service_id: str,
         instance_name: str,
         storage_gb: int,
         cpu_limit: str,
-        db_user: str,
-        db_password: str,
+        db_user: Optional[str] = None,
+        db_password: Optional[str] = None,
     ) -> UserService:
-        log_process(db, instance_name, "DEPLOY", "INFO", f"Initializing provisioning workflow for '{instance_name}' ({service_id})")
+        log_process(db, instance_name, "DEPLOY", "INFO", f"Initializing polymorphic provisioning workflow for '{instance_name}' ({service_id})")
 
         is_connected, v1, custom = get_k8s_client()
 
@@ -43,63 +45,37 @@ class PyroKubeK8sService:
         else:
             log_process(db, instance_name, "DEPLOY", "INFO", "[Dev Mode] Simulated namespace 'production' check")
 
-        # Step 2: Provision Storage PVC (Default StorageClass)
-        log_process(db, instance_name, "DEPLOY", "INFO", f"Provisioning PersistentVolumeClaim (PVC) '{instance_name}-pvc' with {storage_gb}GB storage limit")
-        time.sleep(0.1)
-        log_process(db, instance_name, "DEPLOY", "SUCCESS", f"PVC '{instance_name}-pvc' provisioned on cluster default StorageClass")
-
-        # Step 3: ConfigMap & Secret for Service Mesh Connection
-        log_process(db, instance_name, "DEPLOY", "INFO", f"Creating K8s Secret '{instance_name}-credentials' and ConfigMap into shared service mesh")
-        catalog_item = db.query(CatalogService).filter(CatalogService.id == service_id).first()
-        port = catalog_item.port if catalog_item else "5432"
-        endpoint = f"{instance_name}.production.svc:{port}"
-        time.sleep(0.1)
-        log_process(db, instance_name, "DEPLOY", "SUCCESS", f"Service mesh endpoints registered: internal DNS '{endpoint}'")
-
-        # Step 4: Deploy Kubernetes Workload / Pod Deployment
-        log_process(db, instance_name, "DEPLOY", "INFO", f"Deploying container workload with CPU limit '{cpu_limit}' and image '{service_id}:latest'")
-        time.sleep(0.1)
-        log_process(db, instance_name, "DEPLOY", "SUCCESS", f"Container pod for '{instance_name}' is scheduled and Running (1/1 Ready)")
-
-        # Step 5: Update Database Models & Catalog Status
-        if catalog_item:
-            catalog_item.status = "Active"
-
-        service = db.query(UserService).filter(UserService.id == instance_name).first()
-        if not service:
-            service = UserService(
-                id=instance_name,
-                name=instance_name,
-                tag=catalog_item.category if catalog_item else "database",
-                tag_color=catalog_item.badge_color if catalog_item else "text-kube",
-                ready_pods=1,
-                total_pods=1,
-                status="Running",
-                restarts=0,
-                image=f"{service_id}:latest",
-                namespace="production",
-                endpoint=endpoint,
-                cpu_usage=f"40m / {cpu_limit}",
-                memory_usage="256MB / 1024MB",
-            )
-            db.add(service)
-        else:
-            service.status = "Running"
-            service.ready_pods = 1
-
-        db_inst = DatabaseInstance(
+        # Step 2: Delegate to Polymorphic PyroManagedService Subclass
+        managed_service = PyroManagedServiceFactory.get_service(service_id)
+        user_service = await managed_service.create(
+            db=db,
             service_id=service_id,
-            db_name=instance_name,
+            instance_name=instance_name,
+            storage_gb=storage_gb,
+            cpu_limit=cpu_limit,
             db_user=db_user,
             db_password=db_password,
-            status="Active",
         )
-        db.add(db_inst)
-        db.commit()
-        db.refresh(service)
 
-        log_process(db, instance_name, "DEPLOY", "SUCCESS", f"Service '{instance_name}' successfully deployed and Active")
-        return service
+        return user_service
+
+    @staticmethod
+    async def add_database_instance(
+        db: Session,
+        service_id: str,
+        db_name: str,
+        db_user: Optional[str] = None,
+        db_password: Optional[str] = None,
+    ) -> Any:
+        log_process(db, service_id, "ADD_DATABASE", "INFO", f"Requesting new logical database '{db_name}' on engine '{service_id}'")
+        managed_service = PyroManagedServiceFactory.get_service(service_id)
+        return await managed_service.add_database(
+            db=db,
+            service_id=service_id,
+            db_name=db_name,
+            db_user=db_user,
+            db_password=db_password,
+        )
 
     @staticmethod
     def stop_service(db: Session, service_id: str) -> UserService:

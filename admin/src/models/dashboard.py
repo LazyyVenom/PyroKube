@@ -18,6 +18,8 @@ class ServerStatus(Base):
     storage_used_gb: Mapped[int] = mapped_column(Integer, default=120)
     storage_max_gb: Mapped[int] = mapped_column(Integer, default=500)
     storage_assigned_gb: Mapped[int] = mapped_column(Integer, default=250)
+    cpu_allocated_m: Mapped[int] = mapped_column(Integer, default=800)
+    memory_allocated_gb: Mapped[float] = mapped_column(Float, default=0.6)
 
 
 class UserService(Base):
