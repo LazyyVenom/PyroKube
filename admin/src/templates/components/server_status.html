@@ -1,4 +1,20 @@
-<div class="border border-rule-strong bg-surface p-5">
+{% set status = server_status if server_status else None %}
+{% set nodes_healthy = status.nodes_healthy if status else 3 %}
+{% set nodes_total = status.nodes_total if status else 3 %}
+{% set api_status = status.api_server_status if status else 'Ready' %}
+{% set cpu_pct = status.cpu_usage_pct if status else 18 %}
+{% set cpu_cores = status.cpu_cores if status else 12 %}
+{% set mem_used = status.memory_used_gb if status else 4.2 %}
+{% set mem_max = status.memory_max_gb if status else 32.0 %}
+{% set storage_used = status.storage_used_gb if status else 120 %}
+{% set storage_max = status.storage_max_gb if status else 500 %}
+{% set storage_assigned = status.storage_assigned_gb if status else 250 %}
+
+{% set mem_pct = ((mem_used / mem_max) * 100)|round(1) if mem_max else 0 %}
+{% set storage_used_pct = ((storage_used / storage_max) * 100)|round(1) if storage_max else 0 %}
+{% set storage_assigned_pct = ((storage_assigned / storage_max) * 100)|round(0)|int if storage_max else 0 %}
+
+<div class="border border-rule-strong bg-surface p-5" hx-get="/dashboard/server-status" hx-trigger="every 15s" hx-swap="outerHTML">
   <!-- Server Status Header -->
   <div class="flex flex-wrap items-center justify-between gap-3 border-b border-rule pb-3">
     <div class="flex items-center gap-2.5">
@@ -7,52 +23,61 @@
         <span class="relative inline-flex size-2.5 rounded-full bg-ok"></span>
       </span>
       <h2 class="font-bold text-sm text-paper">Server Status</h2>
-      <span class="font-mono text-[10px] text-slate uppercase tracking-wider border border-rule px-2 py-0.5 bg-surface-alt">
-        Cluster Online
-      </span>
     </div>
     <div class="flex items-center gap-3 font-mono text-xs text-paper-soft">
-      <span>Nodes: <strong class="text-paper font-semibold">3/3 Healthy</strong></span>
+      <span>Nodes: <strong class="text-paper font-semibold">{{ nodes_healthy }}/{{ nodes_total }} Healthy</strong></span>
       <span class="text-rule-strong">|</span>
-      <span>API Server: <strong class="text-ok font-semibold">Ready</strong></span>
+      <span>API Server: <strong class="text-ok font-semibold">{{ api_status }}</strong></span>
     </div>
   </div>
 
   <!-- Key Resource Metrics Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
     <!-- CPU Usage -->
-    <div class="flex flex-col gap-1 border-r border-rule pr-4 last:border-0">
+    <div class="flex flex-col gap-1 border-b sm:border-b-0 border-rule pb-4 sm:pb-0 lg:border-r lg:pr-4">
       <span class="font-mono text-[10px] text-slate uppercase tracking-wider">CPU Usage</span>
       <div class="flex items-baseline justify-between">
-        <span class="font-mono text-lg font-bold text-paper">18%</span>
-        <span class="font-mono text-xs text-slate">12 Cores</span>
+        <span class="font-mono text-lg font-bold text-paper">{{ cpu_pct }}%</span>
+        <span class="font-mono text-xs text-slate">{{ cpu_cores }} Cores</span>
       </div>
       <div class="w-full bg-surface-alt h-1.5 overflow-hidden">
-        <div class="bg-ember h-full" style="width: 18%"></div>
+        <div class="bg-ember h-full" style="width: {{ cpu_pct }}%"></div>
       </div>
     </div>
 
     <!-- Memory Usage -->
-    <div class="flex flex-col gap-1 border-r border-rule pr-4 last:border-0">
+    <div class="flex flex-col gap-1 border-b sm:border-b-0 border-rule pb-4 sm:pb-0 lg:border-r lg:pr-4">
       <span class="font-mono text-[10px] text-slate uppercase tracking-wider">Memory</span>
       <div class="flex items-baseline justify-between">
-        <span class="font-mono text-lg font-bold text-paper">4.2 GB</span>
-        <span class="font-mono text-xs text-slate">32 GB Max</span>
+        <span class="font-mono text-lg font-bold text-paper">{{ mem_used }} GB</span>
+        <span class="font-mono text-xs text-slate">{{ mem_max }} GB Max</span>
       </div>
       <div class="w-full bg-surface-alt h-1.5 overflow-hidden">
-        <div class="bg-kube h-full" style="width: 13%"></div>
+        <div class="bg-kube h-full" style="width: {{ mem_pct }}%"></div>
       </div>
     </div>
 
-    <!-- Storage Volume -->
-    <div class="flex flex-col gap-1">
-      <span class="font-mono text-[10px] text-slate uppercase tracking-wider">Cluster Storage</span>
+    <!-- Storage Volume Used -->
+    <div class="flex flex-col gap-1 border-b sm:border-b-0 border-rule pb-4 sm:pb-0 lg:border-r lg:pr-4">
+      <span class="font-mono text-[10px] text-slate uppercase tracking-wider">Storage Used</span>
       <div class="flex items-baseline justify-between">
-        <span class="font-mono text-lg font-bold text-paper">120 GB</span>
-        <span class="font-mono text-xs text-slate">500 GB</span>
+        <span class="font-mono text-lg font-bold text-paper">{{ storage_used }} GB</span>
+        <span class="font-mono text-xs text-slate">{{ storage_max }} GB Max</span>
       </div>
       <div class="w-full bg-surface-alt h-1.5 overflow-hidden">
-        <div class="bg-ok h-full" style="width: 24%"></div>
+        <div class="bg-ok h-full" style="width: {{ storage_used_pct }}%"></div>
+      </div>
+    </div>
+
+    <!-- Storage Volume Assigned -->
+    <div class="flex flex-col gap-1">
+      <span class="font-mono text-[10px] text-slate uppercase tracking-wider">Storage Assigned</span>
+      <div class="flex items-baseline justify-between">
+        <span class="font-mono text-lg font-bold text-paper">{{ storage_assigned }} GB</span>
+        <span class="font-mono text-xs text-slate">{{ storage_assigned_pct }}% Allocated</span>
+      </div>
+      <div class="w-full bg-surface-alt h-1.5 overflow-hidden">
+        <div class="bg-warn h-full" style="width: {{ storage_assigned_pct }}%"></div>
       </div>
     </div>
   </div>

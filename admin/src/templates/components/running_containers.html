@@ -1,4 +1,4 @@
-<div class="border border-rule-strong bg-surface p-5 flex flex-col gap-4">
+<div class="border border-rule-strong bg-surface p-5 flex flex-col gap-4" id="running-containers-component">
   <!-- Header & Search Controls -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-rule pb-3">
     <div>
@@ -27,156 +27,99 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-rule" id="services-tbody">
-        <!-- Service 1: Admin Frontend -->
-        <tr class="service-row hover:bg-surface-alt/50 transition-colors" data-service-id="service-admin" data-search-target="pyrokube-admin frontend">
+        {% if user_services %}
+        {% for service in user_services %}
+        <tr class="service-row hover:bg-surface-alt/50 transition-colors" data-service-id="service-{{ service.id }}" data-search-target="{{ service.name }} {{ service.tag }}">
           <td class="py-3 px-3">
             <div class="flex items-center gap-2">
-              <button onclick="openServiceDetails('pyrokube-admin', 'frontend', 'pyrokube/admin:v0.1.0', 'default', '2 / 2 Running', 'pyrokube-admin.default.svc:8080', '45m / 500m', '128MB / 512MB')"
+              <button onclick="openServiceDetails('{{ service.name }}', '{{ service.tag }}', '{{ service.image }}', '{{ service.namespace }}', '{{ service.ready_pods }} / {{ service.total_pods }} {{ service.status }}', '{{ service.endpoint }}', '{{ service.cpu_usage }}', '{{ service.memory_usage }}')"
                 class="font-sans font-bold text-paper text-sm service-name hover:text-ember hover:underline text-left transition-colors cursor-pointer" title="Click to view detailed specs">
-                pyrokube-admin
+                {{ service.name }}
               </button>
-              <span class="service-tag-pill bg-surface-alt border border-rule px-2 py-0.5 font-mono text-[10px] text-kube font-semibold">frontend</span>
+              <span class="service-tag-pill bg-surface-alt border border-rule px-2 py-0.5 font-mono text-[10px] {{ service.tag_color }} font-semibold">{{ service.tag }}</span>
             </div>
           </td>
-          <td class="py-3 px-3 text-paper font-semibold">2/2</td>
+          <td class="py-3 px-3 text-paper font-semibold">{{ service.ready_pods }}/{{ service.total_pods }}</td>
           <td class="py-3 px-3">
+            {% if service.status == 'Running' %}
             <span class="inline-flex items-center gap-1.5 text-ok font-semibold">
               <span class="size-1.5 rounded-full bg-ok"></span>Running
             </span>
+            {% elif service.status == 'Stopped' %}
+            <span class="inline-flex items-center gap-1.5 text-crit font-semibold">
+              <span class="size-1.5 rounded-full bg-crit"></span>Stopped
+            </span>
+            {% else %}
+            <span class="inline-flex items-center gap-1.5 text-warn font-semibold">
+              <span class="size-1.5 rounded-full bg-warn"></span>{{ service.status }}
+            </span>
+            {% endif %}
           </td>
-          <td class="py-3 px-3 text-paper-soft font-mono">0</td>
+          <td class="py-3 px-3 text-paper-soft font-mono">{{ service.restarts }}</td>
           <td class="py-3 px-3 text-right relative">
             <div class="relative inline-block text-left">
-              <button onclick="toggleServiceMenu(event, 'menu-service-admin')" class="px-2 py-1 text-slate hover:text-paper hover:bg-surface-alt font-bold text-base leading-none transition-colors border border-transparent hover:border-rule">
+              <button onclick="toggleServiceMenu(event, 'menu-service-{{ service.id }}')" class="px-2 py-1 text-slate hover:text-paper hover:bg-surface-alt font-bold text-base leading-none transition-colors border border-transparent hover:border-rule">
                 ⋮
               </button>
-              <div id="menu-service-admin" class="service-action-menu hidden absolute right-0 mt-1 w-32 border border-rule-strong bg-surface p-1 shadow-xl z-20 font-mono text-xs text-left">
-                <button onclick="handleServiceAction('Logs', 'pyrokube-admin')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
+              <div id="menu-service-{{ service.id }}" class="service-action-menu hidden absolute right-0 mt-1 w-36 border border-rule-strong bg-surface p-1 shadow-xl z-20 font-mono text-xs text-left">
+                <button onclick="handleServiceAction('Logs', '{{ service.name }}')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
                   View Logs
                 </button>
-                <button onclick="handleServiceAction('Restart', 'pyrokube-admin')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
+                <button hx-post="/dashboard/user-services/{{ service.id }}/action" hx-vals='{"action": "Restart"}' hx-target="#running-containers-component" hx-swap="outerHTML" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
                   Restart
                 </button>
-                <button onclick="handleServiceAction('Stop', 'pyrokube-admin')" class="w-full text-left px-2.5 py-1.5 text-crit hover:bg-surface-alt transition-colors">
+                {% if service.status == 'Running' %}
+                <button hx-post="/dashboard/user-services/{{ service.id }}/action" hx-vals='{"action": "Stop"}' hx-target="#running-containers-component" hx-swap="outerHTML" class="w-full text-left px-2.5 py-1.5 text-crit hover:bg-surface-alt transition-colors">
                   Stop Service
                 </button>
+                {% else %}
+                <button hx-post="/dashboard/user-services/{{ service.id }}/action" hx-vals='{"action": "Start"}' hx-target="#running-containers-component" hx-swap="outerHTML" class="w-full text-left px-2.5 py-1.5 text-ok hover:bg-surface-alt transition-colors">
+                  Start Service
+                </button>
+                {% endif %}
               </div>
             </div>
           </td>
         </tr>
-
-        <!-- Service 2: PostgreSQL -->
-        <tr class="service-row hover:bg-surface-alt/50 transition-colors" data-service-id="service-postgres" data-search-target="postgres-primary database">
-          <td class="py-3 px-3">
-            <div class="flex items-center gap-2">
-              <button onclick="openServiceDetails('postgres-primary', 'database', 'postgres:16.2-alpine', 'database', '1 / 1 Running', 'postgres-primary.database.svc:5432', '120m / 2000m', '512MB / 2048MB')"
-                class="font-sans font-bold text-paper text-sm service-name hover:text-ember hover:underline text-left transition-colors cursor-pointer" title="Click to view detailed specs">
-                postgres-primary
-              </button>
-              <span class="service-tag-pill bg-surface-alt border border-rule px-2 py-0.5 font-mono text-[10px] text-ember font-semibold">database</span>
-            </div>
-          </td>
-          <td class="py-3 px-3 text-paper font-semibold">1/1</td>
-          <td class="py-3 px-3">
-            <span class="inline-flex items-center gap-1.5 text-ok font-semibold">
-              <span class="size-1.5 rounded-full bg-ok"></span>Running
-            </span>
-          </td>
-          <td class="py-3 px-3 text-paper-soft font-mono">0</td>
-          <td class="py-3 px-3 text-right relative">
-            <div class="relative inline-block text-left">
-              <button onclick="toggleServiceMenu(event, 'menu-service-postgres')" class="px-2 py-1 text-slate hover:text-paper hover:bg-surface-alt font-bold text-base leading-none transition-colors border border-transparent hover:border-rule">
-                ⋮
-              </button>
-              <div id="menu-service-postgres" class="service-action-menu hidden absolute right-0 mt-1 w-32 border border-rule-strong bg-surface p-1 shadow-xl z-20 font-mono text-xs text-left">
-                <button onclick="handleServiceAction('Logs', 'postgres-primary')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
-                  View Logs
-                </button>
-                <button onclick="handleServiceAction('Restart', 'postgres-primary')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
-                  Restart
-                </button>
-                <button onclick="handleServiceAction('Stop', 'postgres-primary')" class="w-full text-left px-2.5 py-1.5 text-crit hover:bg-surface-alt transition-colors">
-                  Stop Service
-                </button>
-              </div>
-            </div>
-          </td>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="5" class="py-6 text-center text-slate">No services running.</td>
         </tr>
-
-        <!-- Service 3: Redis Cache -->
-        <tr class="service-row hover:bg-surface-alt/50 transition-colors" data-service-id="service-redis" data-search-target="redis-cache cache">
-          <td class="py-3 px-3">
-            <div class="flex items-center gap-2">
-              <button onclick="openServiceDetails('redis-cache', 'cache', 'redis:7.2-alpine', 'cache', '1 / 1 Running', 'redis-cache.cache.svc:6379', '15m / 500m', '64MB / 256MB')"
-                class="font-sans font-bold text-paper text-sm service-name hover:text-ember hover:underline text-left transition-colors cursor-pointer" title="Click to view detailed specs">
-                redis-cache
-              </button>
-              <span class="service-tag-pill bg-surface-alt border border-rule px-2 py-0.5 font-mono text-[10px] text-crit font-semibold">cache</span>
-            </div>
-          </td>
-          <td class="py-3 px-3 text-paper font-semibold">1/1</td>
-          <td class="py-3 px-3">
-            <span class="inline-flex items-center gap-1.5 text-ok font-semibold">
-              <span class="size-1.5 rounded-full bg-ok"></span>Running
-            </span>
-          </td>
-          <td class="py-3 px-3 text-paper-soft font-mono">0</td>
-          <td class="py-3 px-3 text-right relative">
-            <div class="relative inline-block text-left">
-              <button onclick="toggleServiceMenu(event, 'menu-service-redis')" class="px-2 py-1 text-slate hover:text-paper hover:bg-surface-alt font-bold text-base leading-none transition-colors border border-transparent hover:border-rule">
-                ⋮
-              </button>
-              <div id="menu-service-redis" class="service-action-menu hidden absolute right-0 mt-1 w-32 border border-rule-strong bg-surface p-1 shadow-xl z-20 font-mono text-xs text-left">
-                <button onclick="handleServiceAction('Logs', 'redis-cache')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
-                  View Logs
-                </button>
-                <button onclick="handleServiceAction('Restart', 'redis-cache')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
-                  Restart
-                </button>
-                <button onclick="handleServiceAction('Stop', 'redis-cache')" class="w-full text-left px-2.5 py-1.5 text-crit hover:bg-surface-alt transition-colors">
-                  Stop Service
-                </button>
-              </div>
-            </div>
-          </td>
-        </tr>
+        {% endif %}
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- Service Specs & Information Details Modal Popup -->
-<dialog id="service-details-modal" class="fixed inset-0 m-auto bg-transparent backdrop:bg-black/75 backdrop:backdrop-blur-sm p-4 rounded-none max-w-lg w-full">
-  <div class="border-2 border-rule-strong bg-surface p-6 shadow-2xl text-paper flex flex-col gap-4">
+<!-- Modal for Service Specs/Details -->
+<dialog id="service-details-modal" class="backdrop:bg-ink/80 backdrop:backdrop-blur-xs bg-transparent p-0 w-full max-w-lg">
+  <div class="border border-rule-strong bg-surface p-6 shadow-2xl flex flex-col gap-4">
+    <!-- Header -->
     <div class="flex items-center justify-between border-b border-rule pb-3">
-      <div class="flex items-center gap-2.5">
-        <span class="size-2.5 bg-ok rounded-full animate-pulse"></span>
-        <h2 class="font-bold text-lg text-paper" id="modal-details-name">Service Details</h2>
-        <span id="modal-details-tag" class="bg-surface-alt border border-rule px-2 py-0.5 font-mono text-[10px] text-ember font-semibold">
-          tag
-        </span>
+      <div class="flex items-center gap-2">
+        <h3 class="font-bold text-base text-paper" id="modal-details-name">service-name</h3>
+        <span class="bg-surface-alt border border-rule px-2 py-0.5 font-mono text-[10px] text-kube font-semibold" id="modal-details-tag">tag</span>
       </div>
-      <button onclick="closeServiceDetailsModal()" class="font-mono text-xs text-slate hover:text-paper border border-rule px-2 py-0.5">
-        ESC ✕
-      </button>
+      <button type="button" onclick="closeServiceDetailsModal()" class="text-slate hover:text-paper text-lg font-bold">✕</button>
     </div>
 
-    <!-- Metadata Specs Grid -->
+    <!-- Details Grid -->
     <div class="grid grid-cols-2 gap-3 font-mono text-xs border-b border-rule pb-4">
       <div>
-        <span class="text-[10px] text-slate uppercase block">Container Image</span>
-        <span class="text-paper font-semibold break-all" id="modal-details-image">image</span>
+        <span class="text-slate text-[10px] block uppercase">Container Image</span>
+        <span class="text-paper break-all font-semibold" id="modal-details-image">image:v1</span>
       </div>
       <div>
-        <span class="text-[10px] text-slate uppercase block">Namespace</span>
-        <span class="text-paper-soft" id="modal-details-namespace">default</span>
+        <span class="text-slate text-[10px] block uppercase">Namespace</span>
+        <span class="text-paper font-semibold" id="modal-details-namespace">default</span>
       </div>
       <div>
-        <span class="text-[10px] text-slate uppercase block">Replicas / Pods</span>
-        <span class="text-paper" id="modal-details-replicas">1 / 1 Running</span>
+        <span class="text-slate text-[10px] block uppercase">Replicas</span>
+        <span class="text-paper font-semibold" id="modal-details-replicas">1 / 1</span>
       </div>
       <div>
-        <span class="text-[10px] text-slate uppercase block">Internal Endpoint</span>
+        <span class="text-slate text-[10px] block uppercase">Internal Endpoint</span>
         <span class="text-paper break-all" id="modal-details-endpoint">cluster.local</span>
       </div>
     </div>

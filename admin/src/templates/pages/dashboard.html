@@ -46,15 +46,15 @@ block content %}
           </button>
           <button onclick="setCatalogCategory('database')" id="catalog-tab-database"
             class="catalog-tab-btn px-2.5 py-1 text-paper-soft hover:text-paper transition-colors whitespace-nowrap">
-            DB (5)
+            DB ({{ services|selectattr('category', 'equalto', 'database')|list|length }})
           </button>
           <button onclick="setCatalogCategory('uploads')" id="catalog-tab-uploads"
             class="catalog-tab-btn px-2.5 py-1 text-paper-soft hover:text-paper transition-colors whitespace-nowrap">
-            Uploads (1)
+            Uploads ({{ services|selectattr('category', 'equalto', 'uploads')|list|length }})
           </button>
           <button onclick="setCatalogCategory('registry')" id="catalog-tab-registry"
             class="catalog-tab-btn px-2.5 py-1 text-paper-soft hover:text-paper transition-colors whitespace-nowrap">
-            Registry (1)
+            Registry ({{ services|selectattr('category', 'equalto', 'registry')|list|length }})
           </button>
         </div>
       </div>

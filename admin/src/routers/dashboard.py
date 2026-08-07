@@ -1,127 +1,88 @@
 import time
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from sqlalchemy.orm import Session
 
 from core.auth import require_admin, token_expiry
 from core.config import templates
+from core.db import get_db
 from core.settings import setting
+from models.dashboard import CatalogService, ServerStatus, UserService
 from utils.format import humanize_seconds
 
 router = APIRouter(dependencies=[Depends(require_admin)])
-
-
-SERVICES_CATALOG = [
-    {
-        "id": "postgres",
-        "name": "PostgreSQL",
-        "category": "database",
-        "category_label": "Database",
-        "badge": "PG",
-        "badge_color": "text-kube",
-        "description": "Relational SQL database engine with ACID compliance, JSONB support, and full-text search capability.",
-        "port": "5432",
-        "port_label": "Default Port",
-        "version": "v16.2",
-        "status": "Active",
-        "subtitle": "Postgres Relational DB",
-    },
-    {
-        "id": "mongodb",
-        "name": "MongoDB",
-        "category": "database",
-        "category_label": "Database",
-        "badge": "MDB",
-        "badge_color": "text-ok",
-        "description": "High-performance document-oriented NoSQL database for flexible JSON-like records.",
-        "port": "27017",
-        "port_label": "Default Port",
-        "version": "v7.0.5",
-        "status": "InActive",
-        "subtitle": "NoSQL Document Store",
-    },
-    {
-        "id": "redis",
-        "name": "Redis",
-        "category": "database",
-        "category_label": "Database",
-        "badge": "RDS",
-        "badge_color": "text-crit",
-        "description": "Ultra-fast in-memory key-value data structure store, cache layer, and pub/sub message broker.",
-        "port": "6379",
-        "port_label": "Default Port",
-        "version": "v7.2.4",
-        "status": "Failed",
-        "subtitle": "In-Memory Cache & Key-Value",
-    },
-    {
-        "id": "rabbitmq",
-        "name": "RabbitMQ",
-        "category": "database",
-        "category_label": "Database",
-        "badge": "RMQ",
-        "badge_color": "text-warn",
-        "description": "Enterprise AMQP message broker for task queues, background jobs, and event-driven architecture.",
-        "port": "5672 / 15672",
-        "port_label": "Default Port",
-        "version": "v3.13.0",
-        "status": "InActive",
-        "subtitle": "AMQP Message Queue Broker",
-    },
-    {
-        "id": "zincsearch",
-        "name": "ZincSearch",
-        "category": "database",
-        "category_label": "Database",
-        "badge": "ZNC",
-        "badge_color": "text-ember",
-        "description": "Lightweight search engine and log indexer designed as a low-resource Elasticsearch alternative.",
-        "port": "4080",
-        "port_label": "Default Port",
-        "version": "v0.4.8",
-        "status": "Active",
-        "subtitle": "Search Engine & Log Indexer",
-    },
-    {
-        "id": "garage",
-        "name": "Garage Storage",
-        "category": "uploads",
-        "category_label": "Uploads",
-        "badge": "GRG",
-        "badge_color": "text-ember",
-        "description": "Geo-distributed, S3-compatible object storage designed for media uploads, buckets, and asset storage.",
-        "port": "3900",
-        "port_label": "S3 API Port",
-        "version": "v1.0.0",
-        "status": "Active",
-        "subtitle": "S3 Object Storage",
-    },
-    {
-        "id": "registry",
-        "name": "Image Registry",
-        "category": "registry",
-        "category_label": "Image Registry",
-        "badge": "REG",
-        "badge_color": "text-kube",
-        "description": "Private OCI-compliant container image registry for storing, pushing, and pulling docker cluster images.",
-        "port": "5000",
-        "port_label": "Registry Port",
-        "version": "OCI v2",
-        "status": "InActive",
-        "subtitle": "OCI Container Registry",
-    },
-]
-
 
 STATUS_ORDER = {"Failed": 0, "Active": 1, "InActive": 2}
 
 
 @router.get("/dashboard")
-def dashboard(request: Request):
-    sorted_services = sorted(SERVICES_CATALOG, key=lambda s: STATUS_ORDER.get(s.get("status", ""), 3))
+def dashboard(request: Request, db: Session = Depends(get_db)):
+    server_status = db.query(ServerStatus).first()
+    user_services = db.query(UserService).all()
+    catalog_services = db.query(CatalogService).all()
+    sorted_catalog = sorted(catalog_services, key=lambda s: STATUS_ORDER.get(s.status, 3))
+
     return templates.TemplateResponse(
         request,
         "pages/dashboard.html",
-        {"services": sorted_services},
+        {
+            "server_status": server_status,
+            "user_services": user_services,
+            "services": sorted_catalog,
+        },
+    )
+
+
+@router.get("/dashboard/server-status")
+def server_status_partial(request: Request, db: Session = Depends(get_db)):
+    server_status = db.query(ServerStatus).first()
+    return templates.TemplateResponse(
+        request,
+        "components/server_status.html",
+        {"server_status": server_status},
+    )
+
+
+@router.get("/dashboard/user-services")
+def user_services_partial(request: Request, db: Session = Depends(get_db)):
+    user_services = db.query(UserService).all()
+    return templates.TemplateResponse(
+        request,
+        "components/running_containers.html",
+        {"user_services": user_services},
+    )
+
+
+@router.post("/dashboard/user-services/{service_id}/action")
+def user_service_action(
+    request: Request,
+    service_id: str,
+    action: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    service = db.query(UserService).filter(UserService.id == service_id).first()
+    if not service:
+        raise HTTPException(status_code=404, detail="Service not found")
+
+    action_lower = action.lower()
+    if action_lower == "stop":
+        service.status = "Stopped"
+        service.ready_pods = 0
+    elif action_lower == "start":
+        service.status = "Running"
+        service.ready_pods = service.total_pods
+    elif action_lower == "restart":
+        service.status = "Running"
+        service.ready_pods = service.total_pods
+        service.restarts += 1
+
+    db.commit()
+
+    user_services = db.query(UserService).all()
+    return templates.TemplateResponse(
+        request,
+        "components/running_containers.html",
+        {"user_services": user_services},
     )
 
 
