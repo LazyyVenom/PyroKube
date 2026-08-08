@@ -29,7 +29,25 @@ class PyroRabbitMQ(PyroManagedService):
         if catalog_item:
             catalog_item.status = "Active"
 
-        endpoint = f"{instance_name}.production.svc:{self.default_port}"
+        target_ns = f"pyro-{instance_name}"
+        endpoint = f"{instance_name}.{target_ns}.svc:{self.default_port}"
+
+        # Provision real K8s PVC, Secret, Service (with management UI port 15672), and Deployment inside dedicated namespace
+        from services.k8s_service import PyroKubeK8sService
+        PyroKubeK8sService.provision_k8s_managed_workload(
+            instance_name=instance_name,
+            image="rabbitmq:3.13-management-alpine",
+            port=5672,
+            extra_ports=[15672],
+            storage_gb=storage_gb,
+            cpu_limit=cpu_limit,
+            env_vars={
+                "RABBITMQ_DEFAULT_USER": db_user or "admin",
+                "RABBITMQ_DEFAULT_PASS": db_password or "pyrokube_pass",
+            },
+            mount_path="/var/lib/rabbitmq",
+        )
+
         service = db.query(UserService).filter(UserService.id == instance_name).first()
         if not service:
             service = UserService(
@@ -42,7 +60,7 @@ class PyroRabbitMQ(PyroManagedService):
                 status="Running",
                 restarts=0,
                 image="rabbitmq:3.13-management-alpine",
-                namespace="production",
+                namespace=target_ns,
                 endpoint=endpoint,
                 cpu_usage=f"60m / {cpu_limit}",
                 memory_usage="200MB / 512MB",
@@ -55,6 +73,9 @@ class PyroRabbitMQ(PyroManagedService):
         return service
 
     async def delete(self, db: Session, service_id: str) -> bool:
+        from services.k8s_service import PyroKubeK8sService
+        PyroKubeK8sService.teardown_k8s_managed_workload(service_id)
+
         service = db.query(UserService).filter(UserService.id == service_id).first()
         if service:
             db.delete(service)

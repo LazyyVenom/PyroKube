@@ -30,8 +30,20 @@ class PyroRedis(PyroManagedService):
         if catalog_item:
             catalog_item.status = "Active"
 
-        endpoint = f"{instance_name}.production.svc:{self.default_port}"
+        target_ns = f"pyro-{instance_name}"
+        endpoint = f"{instance_name}.{target_ns}.svc:{self.default_port}"
         
+        # Provision real K8s PVC, Service, and Deployment inside dedicated namespace
+        from services.k8s_service import PyroKubeK8sService
+        PyroKubeK8sService.provision_k8s_managed_workload(
+            instance_name=instance_name,
+            image="redis:7.2-alpine",
+            port=6379,
+            storage_gb=storage_gb,
+            cpu_limit=cpu_limit,
+            mount_path="/data",
+        )
+
         service = db.query(UserService).filter(UserService.id == instance_name).first()
         if not service:
             service = UserService(
@@ -44,7 +56,7 @@ class PyroRedis(PyroManagedService):
                 status="Running",
                 restarts=0,
                 image="redis:7.2-alpine",
-                namespace="production",
+                namespace=target_ns,
                 endpoint=endpoint,
                 cpu_usage=f"15m / {cpu_limit}",
                 memory_usage="64MB / 512MB",
@@ -52,6 +64,8 @@ class PyroRedis(PyroManagedService):
             db.add(service)
         else:
             service.status = "Running"
+            service.namespace = target_ns
+            service.endpoint = endpoint
 
         db.commit()
         db.refresh(service)
@@ -59,6 +73,9 @@ class PyroRedis(PyroManagedService):
         return service
 
     async def delete(self, db: Session, service_id: str) -> bool:
+        from services.k8s_service import PyroKubeK8sService
+        PyroKubeK8sService.teardown_k8s_managed_workload(service_id)
+
         service = db.query(UserService).filter(UserService.id == service_id).first()
         if service:
             db.delete(service)

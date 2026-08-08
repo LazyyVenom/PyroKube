@@ -29,7 +29,21 @@ class PyroGarage(PyroManagedService):
         if catalog_item:
             catalog_item.status = "Active"
 
-        endpoint = f"{instance_name}.production.svc:{self.default_port}"
+        target_ns = f"pyro-{instance_name}"
+        endpoint = f"{instance_name}.{target_ns}.svc:{self.default_port}"
+
+        # Provision real K8s PVC, Service (S3 API 3900 & Admin API 3902), and Deployment inside dedicated namespace
+        from services.k8s_service import PyroKubeK8sService
+        PyroKubeK8sService.provision_k8s_managed_workload(
+            instance_name=instance_name,
+            image="dxflrs/garage:v1.0.0",
+            port=3900,
+            extra_ports=[3902],
+            storage_gb=storage_gb,
+            cpu_limit=cpu_limit,
+            mount_path="/var/lib/garage",
+        )
+
         service = db.query(UserService).filter(UserService.id == instance_name).first()
         if not service:
             service = UserService(
@@ -42,7 +56,7 @@ class PyroGarage(PyroManagedService):
                 status="Running",
                 restarts=0,
                 image="dxflrs/garage:v1.0.0",
-                namespace="production",
+                namespace=target_ns,
                 endpoint=endpoint,
                 cpu_usage=f"40m / {cpu_limit}",
                 memory_usage="128MB / 512MB",
@@ -55,6 +69,9 @@ class PyroGarage(PyroManagedService):
         return service
 
     async def delete(self, db: Session, service_id: str) -> bool:
+        from services.k8s_service import PyroKubeK8sService
+        PyroKubeK8sService.teardown_k8s_managed_workload(service_id)
+
         service = db.query(UserService).filter(UserService.id == service_id).first()
         if service:
             db.delete(service)

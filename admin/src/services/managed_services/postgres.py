@@ -33,8 +33,25 @@ class PyroPostgres(PyroManagedService):
         if catalog_item:
             catalog_item.status = "Active"
 
-        endpoint = f"{instance_name}.production.svc:{self.default_port}"
+        target_ns = f"pyro-{instance_name}"
+        endpoint = f"{instance_name}.{target_ns}.svc:{self.default_port}"
         
+        # Provision real K8s PVC, Secret, Service, and Deployment inside dedicated namespace
+        from services.k8s_service import PyroKubeK8sService
+        PyroKubeK8sService.provision_k8s_managed_workload(
+            instance_name=instance_name,
+            image="postgres:16.2-alpine",
+            port=5432,
+            storage_gb=storage_gb,
+            cpu_limit=cpu_limit,
+            env_vars={
+                "POSTGRES_USER": db_user or "postgres",
+                "POSTGRES_PASSWORD": db_password or "pyrokube_pass",
+                "POSTGRES_DB": instance_name,
+            },
+            mount_path="/var/lib/postgresql/data",
+        )
+
         service = db.query(UserService).filter(UserService.id == instance_name).first()
         if not service:
             service = UserService(
@@ -47,7 +64,7 @@ class PyroPostgres(PyroManagedService):
                 status="Running",
                 restarts=0,
                 image="postgres:16.2-alpine",
-                namespace="production",
+                namespace=target_ns,
                 endpoint=endpoint,
                 cpu_usage=f"50m / {cpu_limit}",
                 memory_usage="256MB / 1024MB",
@@ -56,6 +73,8 @@ class PyroPostgres(PyroManagedService):
         else:
             service.status = "Running"
             service.ready_pods = 1
+            service.namespace = target_ns
+            service.endpoint = endpoint
 
         # Seed primary logical database
         db_inst = DatabaseInstance(
@@ -74,6 +93,9 @@ class PyroPostgres(PyroManagedService):
 
     async def delete(self, db: Session, service_id: str) -> bool:
         log_process(db, service_id, "DELETE_PG", "INFO", f"[PyroPostgres] Teardown PostgreSQL instance '{service_id}'")
+        from services.k8s_service import PyroKubeK8sService
+        PyroKubeK8sService.teardown_k8s_managed_workload(service_id)
+
         service = db.query(UserService).filter(UserService.id == service_id).first()
         if service:
             db.delete(service)

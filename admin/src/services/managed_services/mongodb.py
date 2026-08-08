@@ -30,8 +30,25 @@ class PyroMongoDB(PyroManagedService):
         if catalog_item:
             catalog_item.status = "Active"
 
-        endpoint = f"{instance_name}.production.svc:{self.default_port}"
+        target_ns = f"pyro-{instance_name}"
+        endpoint = f"{instance_name}.{target_ns}.svc:{self.default_port}"
         
+        # Provision real K8s PVC, Secret, Service, and Deployment inside dedicated namespace
+        from services.k8s_service import PyroKubeK8sService
+        PyroKubeK8sService.provision_k8s_managed_workload(
+            instance_name=instance_name,
+            image="mongo:7.0.5",
+            port=27017,
+            storage_gb=storage_gb,
+            cpu_limit=cpu_limit,
+            env_vars={
+                "MONGO_INITDB_ROOT_USERNAME": db_user or "admin",
+                "MONGO_INITDB_ROOT_PASSWORD": db_password or "pyrokube_pass",
+                "MONGO_INITDB_DATABASE": instance_name,
+            },
+            mount_path="/data/db",
+        )
+
         service = db.query(UserService).filter(UserService.id == instance_name).first()
         if not service:
             service = UserService(
@@ -44,7 +61,7 @@ class PyroMongoDB(PyroManagedService):
                 status="Running",
                 restarts=0,
                 image="mongo:7.0.5",
-                namespace="production",
+                namespace=target_ns,
                 endpoint=endpoint,
                 cpu_usage=f"80m / {cpu_limit}",
                 memory_usage="384MB / 1024MB",
@@ -57,6 +74,9 @@ class PyroMongoDB(PyroManagedService):
         return service
 
     async def delete(self, db: Session, service_id: str) -> bool:
+        from services.k8s_service import PyroKubeK8sService
+        PyroKubeK8sService.teardown_k8s_managed_workload(service_id)
+
         service = db.query(UserService).filter(UserService.id == service_id).first()
         if service:
             db.delete(service)
