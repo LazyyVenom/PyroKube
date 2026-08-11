@@ -11,10 +11,10 @@
       <p class="text-xs text-slate-400 font-mono mt-1">Monitor VPS host storage, clear temporary git workspace build caches, and prune dangling containerd images.</p>
     </div>
 
-    <!-- Action Button -->
     <button type="button" hx-post="/dashboard/server/prune" hx-target="#cleanup-page-content" hx-swap="outerHTML"
       class="px-5 py-2.5 bg-ember text-paper font-bold text-xs font-mono uppercase tracking-wider hover:brightness-110 shadow-lg flex items-center gap-2">
-      🧹 Prune Server Storage Now
+      <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      Prune Server Storage Now
     </button>
   </div>
 

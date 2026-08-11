@@ -10,47 +10,46 @@
     </div>
 
     <!-- Vertical Navigation Menu Links -->
-    <div class="flex flex-col gap-1.5">
-      <span class="text-slate text-[10px] uppercase font-bold px-2 mb-1 tracking-wider">Navigation</span>
+    <div class="flex flex-col gap-1">
 
       <a href="/dashboard"
-        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border border-transparent hover:border-rule rounded-none {% if current_page == 'dashboard' %}bg-ember text-paper font-semibold shadow-md{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt{% endif %}">
-        <span>🖥️</span> Overview
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'dashboard' %}bg-ember text-paper border-paper font-extrabold shadow-lg shadow-ember/30{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
+        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        Overview
       </a>
 
       <a href="/dashboard/domains-page"
-        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border border-transparent hover:border-rule rounded-none {% if current_page == 'domains' %}bg-ember text-paper font-semibold shadow-md{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt{% endif %}">
-        <span>🌐</span> Domains & Ingress
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'domains' %}bg-ember text-paper border-paper font-extrabold shadow-lg shadow-ember/30{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
+        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+        Domains & Ingress
       </a>
 
       <a href="/dashboard/registry-page"
-        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border border-transparent hover:border-rule rounded-none {% if current_page == 'registry' %}bg-ember text-paper font-semibold shadow-md{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt{% endif %}">
-        <span>🐳</span> Image Registry
-      </a>
-
-      <a href="/dashboard/cleanup-page"
-        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border border-transparent hover:border-rule rounded-none {% if current_page == 'cleanup' %}bg-ember text-paper font-semibold shadow-md{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt{% endif %}">
-        <span>🧹</span> Storage Cleanup
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'registry' %}bg-ember text-paper border-paper font-extrabold shadow-lg shadow-ember/30{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
+        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        Image Registry
       </a>
 
       <a href="/dashboard/crons-page"
-        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border border-transparent hover:border-rule rounded-none {% if current_page == 'crons' %}bg-ember text-paper font-semibold shadow-md{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt{% endif %}">
-        <span>⏱️</span> CronJobs Engine
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'crons' %}bg-ember text-paper border-paper font-extrabold shadow-lg shadow-ember/30{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
+        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        CronJobs Engine
       </a>
     </div>
 
     <!-- Quick Actions Section -->
     <div class="flex flex-col gap-2 border-t border-rule pt-4">
-      <span class="text-slate text-[10px] uppercase font-bold px-2 tracking-wider">Quick Actions</span>
 
       <button type="button" onclick="openUserAppModal()"
-        class="w-full text-left border border-ok bg-ok/10 text-ok px-3 py-2 text-xs font-mono tracking-wider uppercase hover:bg-ok hover:text-ink font-bold transition-all shadow-md">
-        + Deploy Custom App
+        class="w-full text-left border border-ok bg-ok/10 text-ok px-3 py-2 text-xs font-mono tracking-wider uppercase hover:bg-ok hover:text-ink font-bold transition-all shadow-md flex items-center gap-2">
+        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Deploy Custom App
       </button>
 
       <button type="button" onclick="openDocsModal()"
-        class="w-full text-left border border-rule-strong px-3 py-2 text-xs font-mono text-paper-soft hover:text-paper hover:bg-surface-alt font-bold uppercase transition-all">
-        📖 App Specs & Guide
+        class="w-full text-left border border-rule-strong px-3 py-2 text-xs font-mono text-paper-soft hover:text-paper hover:bg-surface-alt font-bold uppercase transition-all flex items-center gap-2">
+        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        App Specs & Guide
       </button>
     </div>
   </div>

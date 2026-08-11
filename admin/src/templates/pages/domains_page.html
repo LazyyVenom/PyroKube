@@ -67,8 +67,10 @@
             </td>
             <td class="py-3 px-3">
               {% if service.wildcard_domain %}
-              <a href="http://{{ service.wildcard_domain }}" target="_blank" class="text-kube hover:underline font-bold flex items-center gap-1">
-                🌐 {{ service.wildcard_domain }} ↗
+              <a href="http://{{ service.wildcard_domain }}" target="_blank" class="text-kube hover:underline font-bold flex items-center gap-1.5">
+                <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                {{ service.wildcard_domain }}
+                <svg class="size-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
               </a>
               {% else %}
               <span class="text-slate-softer text-[10px] italic">Unassigned</span>
@@ -76,8 +78,9 @@
             </td>
             <td class="py-3 px-3">
               {% if service.custom_domain %}
-              <span class="text-ok font-bold bg-ok/10 border border-ok/30 px-2 py-0.5 text-[11px]">
-                🔗 {{ service.custom_domain }}
+              <span class="text-ok font-bold bg-ok/10 border border-ok/30 px-2 py-0.5 text-[11px] inline-flex items-center gap-1.5">
+                <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                {{ service.custom_domain }}
               </span>
               {% else %}
               <span class="text-slate-softer text-[10px] italic">No custom domain attached</span>

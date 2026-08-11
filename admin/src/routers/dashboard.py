@@ -75,6 +75,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             "server_status": server_status,
             "user_services": user_services,
             "services": sorted_catalog,
+            "current_page": "dashboard",
         },
     )
 
@@ -338,6 +339,7 @@ def domains_page_view(request: Request, db: Session = Depends(get_db)):
         {
             "user_services": user_services,
             "wildcard_domain": setting.WILDCARD_DOMAIN,
+            "current_page": "domains",
         },
     )
 
@@ -349,7 +351,7 @@ def registry_page_view(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(
         request,
         "pages/registry_page.html",
-        {"registry_records": records},
+        {"registry_records": records, "current_page": "registry"},
     )
 
 
@@ -366,7 +368,7 @@ def cleanup_page_view(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(
         request,
         "pages/cleanup_page.html",
-        {"server_status": server_status, "cleanup_logs": cleanup_logs},
+        {"server_status": server_status, "cleanup_logs": cleanup_logs, "current_page": "cleanup"},
     )
 
 
@@ -377,7 +379,7 @@ def crons_page_view(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(
         request,
         "pages/crons_page.html",
-        {"cron_records": cron_records},
+        {"cron_records": cron_records, "current_page": "crons"},
     )
 
 

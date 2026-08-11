@@ -6,69 +6,9 @@ block content %}
   <!-- Server Status Component -->
   {% include 'components/server_status.html' %}
 
-  <!-- Your Services Active Component -->
-  {% include 'components/running_containers.html' %}
-
-  <!-- Deploy Service Modal Component -->
-  {% include 'components/deploy_modal.html' %}
-
-  <!-- Deploy Custom App Modal Component -->
-  {% include 'components/deploy_user_app_modal.html' %}
-
-  <!-- Developer Specs Docs Modal Component -->
-  {% include 'components/docs_modal.html' %}
-
-  <!-- Custom Domain Attachment Modal Component -->
-  {% include 'components/domain_modal.html' %}
-
-  <!-- Process Audit Logs Modal Component -->
-  {% include 'components/process_logs.html' %}
-
   <!-- Managed Services Catalog Component -->
   {% include 'components/catalog_services.html' %}
 </div>
-
-<!-- Deployment Configuration Modal -->
-<dialog id="deploy-service-modal" class="fixed inset-0 m-auto bg-transparent backdrop:bg-black/75 backdrop:backdrop-blur-sm p-4 rounded-none max-w-md w-full">
-  <div class="border-2 border-rule-strong bg-surface p-6 shadow-2xl text-paper flex flex-col gap-4">
-    <div class="flex items-center justify-between border-b border-rule pb-3">
-      <div class="flex items-center gap-2">
-        <span class="size-2.5 bg-ember"></span>
-        <h2 class="font-bold text-lg text-paper" id="modal-service-name">Service Provisioning</h2>
-      </div>
-      <button onclick="closeDeployModal()" class="font-mono text-xs text-slate hover:text-paper border border-rule px-2 py-0.5">
-        ESC ✕
-      </button>
-    </div>
-
-    <form id="deploy-service-form" onsubmit="handleServiceDeploy(event)" class="flex flex-col gap-4 font-mono text-xs">
-      <div>
-        <label class="text-[10px] text-slate uppercase block mb-1">Target Cluster Namespace</label>
-        <input type="text" name="namespace" value="default" required
-          class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ember focus:outline-none">
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-[10px] text-slate uppercase block mb-1">Service Port</label>
-          <input type="text" id="modal-service-port" name="port" value="5432" readonly
-            class="w-full bg-surface-alt border border-rule px-3 py-2 text-paper-soft cursor-not-allowed">
-        </div>
-        <div>
-          <label class="text-[10px] text-slate uppercase block mb-1">Replicas</label>
-          <input type="number" name="replicas" value="1" min="1" max="10" required
-            class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ember focus:outline-none">
-        </div>
-      </div>
-
-      <div id="modal-success-alert" class="hidden border border-ok bg-surface-alt p-3 font-mono text-xs text-ok">
-        ✓ Deployment command queued for cluster provisioner.
-      </div>
-
-      <div class="flex items-center justify-end gap-3 border-t border-rule pt-4 mt-2">
-        <button type="button" onclick="closeDeployModal()" class="border border-rule-strong px-4 py-2 text-xs font-mono text-paper-soft hover:bg-paper hover:text-ink">
-          Cancel
-        </button>
         <button type="submit" id="submit-btn" class="bg-ember px-5 py-2 text-xs font-semibold text-paper hover:bg-ember-lift">
           Confirm & Provision
         </button>
