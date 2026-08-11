@@ -3,7 +3,7 @@
   <div class="flex flex-col gap-6">
     <!-- Brand Logo Header -->
     <div class="flex items-center gap-3 border-b border-rule pb-4">
-      <span class="size-4 bg-ember shadow-md shadow-ember/50"></span>
+      <span class="size-4 bg-ember"></span>
       <a href="/dashboard" class="text-xl font-extrabold tracking-tight font-heading text-paper hover:text-ember transition-colors">
         PyroKube
       </a>
@@ -13,25 +13,25 @@
     <div class="flex flex-col gap-1">
 
       <a href="/dashboard"
-        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'dashboard' %}bg-ember text-paper border-paper font-extrabold shadow-lg shadow-ember/30{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'dashboard' %}bg-ember text-paper border-paper font-extrabold{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
         <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
         Overview
       </a>
 
       <a href="/dashboard/domains-page"
-        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'domains' %}bg-ember text-paper border-paper font-extrabold shadow-lg shadow-ember/30{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'domains' %}bg-ember text-paper border-paper font-extrabold{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
         <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
         Domains & Ingress
       </a>
 
       <a href="/dashboard/registry-page"
-        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'registry' %}bg-ember text-paper border-paper font-extrabold shadow-lg shadow-ember/30{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'registry' %}bg-ember text-paper border-paper font-extrabold{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
         <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
         Image Registry
       </a>
 
       <a href="/dashboard/crons-page"
-        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'crons' %}bg-ember text-paper border-paper font-extrabold shadow-lg shadow-ember/30{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border-l-4 rounded-none {% if current_page == 'crons' %}bg-ember text-paper border-paper font-extrabold{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt border-transparent{% endif %}">
         <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         CronJobs Engine
       </a>
@@ -41,7 +41,7 @@
     <div class="flex flex-col gap-2 border-t border-rule pt-4">
 
       <button type="button" onclick="openUserAppModal()"
-        class="w-full text-left border border-ok bg-ok/10 text-ok px-3 py-2 text-xs font-mono tracking-wider uppercase hover:bg-ok hover:text-ink font-bold transition-all shadow-md flex items-center gap-2">
+        class="w-full text-left border border-ok bg-ok/10 text-ok px-3 py-2 text-xs font-mono tracking-wider uppercase hover:bg-ok hover:text-ink font-bold transition-all flex items-center gap-2">
         <svg class="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Deploy Custom App
       </button>

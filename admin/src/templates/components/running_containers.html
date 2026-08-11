@@ -61,7 +61,7 @@
               <button onclick="toggleServiceMenu(event, 'menu-service-{{ service.id }}')" class="px-2 py-1 text-slate hover:text-paper hover:bg-surface-alt font-bold text-base leading-none transition-colors border border-transparent hover:border-rule">
                 ⋮
               </button>
-              <div id="menu-service-{{ service.id }}" class="service-action-menu hidden absolute right-0 mt-1 w-36 border border-rule-strong bg-surface p-1 shadow-xl z-20 font-mono text-xs text-left">
+              <div id="menu-service-{{ service.id }}" class="service-action-menu hidden absolute right-0 mt-1 w-36 border border-rule-strong bg-surface p-1 z-20 font-mono text-xs text-left">
                 <button onclick="openProcessLogsModal('{{ service.id }}')" class="w-full text-left px-2.5 py-1.5 text-kube hover:bg-surface-alt font-semibold transition-colors">
                   Audit Logs
                 </button>
