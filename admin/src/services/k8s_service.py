@@ -39,7 +39,7 @@ class PyroKubeK8sService:
                 ns_names = [n.metadata.name for n in namespaces.items]
                 if target_namespace not in ns_names:
                     log_process(db, instance_name, "DEPLOY", "INFO", f"Creating dedicated Kubernetes namespace '{target_namespace}'")
-                    ns_manifest = {"metadata": {"name": target_namespace, "labels": {"pyrokube.io/managed": "true"}}}
+                    ns_manifest = {"metadata": {"name": target_namespace, "labels": {"pyrokube/managed": "true"}}}
                     v1.create_namespace(body=ns_manifest)
                     log_process(db, instance_name, "DEPLOY", "SUCCESS", f"Dedicated namespace '{target_namespace}' created")
             except Exception as e:
@@ -173,7 +173,7 @@ class PyroKubeK8sService:
 
         apps_v1 = client.AppsV1Api()
         namespace = f"pyro-{instance_name}"
-        labels = {"app": instance_name, "pyrokube.io/managed": "true"}
+        labels = {"app": instance_name, "pyrokube/managed": "true"}
 
         # 0. Ensure Dedicated Namespace Exists
         try:
