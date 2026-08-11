@@ -57,11 +57,18 @@
               class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ok focus:outline-none">
           </div>
           <div class="flex flex-col gap-1">
-            <label for="app-cpu-limit" class="text-slate text-[10px] uppercase">CPU Limit</label>
+            <label for="app-cpu-limit" class="text-slate text-[10px] uppercase">CPU Limit (Granular)</label>
             <select id="app-cpu-limit" name="cpu_limit" class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ok focus:outline-none">
-              <option value="500m" selected>500m (0.5 Core)</option>
-              <option value="1000m">1000m (1 Core)</option>
-              <option value="2000m">2000m (2 Cores)</option>
+              <option value="25m">25m (0.025 Core - Micro)</option>
+              <option value="50m">50m (0.05 Core - Ultra Low)</option>
+              <option value="100m">100m (0.10 Core - Low)</option>
+              <option value="250m">250m (0.25 Core - Eco)</option>
+              <option value="500m" selected>500m (0.50 Core - Standard)</option>
+              <option value="750m">750m (0.75 Core - Medium)</option>
+              <option value="1000m">1000m (1.0 Core - High)</option>
+              <option value="1500m">1500m (1.5 Cores - Performance)</option>
+              <option value="2000m">2000m (2.0 Cores - Turbo)</option>
+              <option value="4000m">4000m (4.0 Cores - Max)</option>
             </select>
           </div>
         </div>

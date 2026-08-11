@@ -43,6 +43,8 @@ class UserService(Base):
     dockerfile_path: Mapped[str] = mapped_column(String, nullable=True, default="Dockerfile")
     port: Mapped[int] = mapped_column(Integer, nullable=True, default=8000)
     build_status: Mapped[str] = mapped_column(String, nullable=True, default="Success")
+    wildcard_domain: Mapped[str] = mapped_column(String, nullable=True)
+    custom_domain: Mapped[str] = mapped_column(String, nullable=True)
 
 
 class ImageRegistryRecord(Base):

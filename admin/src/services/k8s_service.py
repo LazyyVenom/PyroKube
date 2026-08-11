@@ -344,6 +344,15 @@ class PyroKubeK8sService:
             period_seconds=5,
         )
 
+        # Proportional initial CPU request for high-density pod packing
+        req_cpu = "25m"
+        if cpu_limit and cpu_limit.endswith("m"):
+            try:
+                val = int(cpu_limit[:-1])
+                req_cpu = f"{max(10, min(100, val // 4))}m"
+            except Exception:
+                pass
+
         container = client.V1Container(
             name=instance_name,
             image=image,
@@ -353,7 +362,7 @@ class PyroKubeK8sService:
             liveness_probe=liveness_probe,
             readiness_probe=readiness_probe,
             resources=client.V1ResourceRequirements(
-                requests={"cpu": "50m", "memory": "128Mi"},
+                requests={"cpu": req_cpu, "memory": "64Mi"},
                 limits={"cpu": cpu_limit, "memory": "1024Mi"},
             ),
         )
@@ -380,6 +389,13 @@ class PyroKubeK8sService:
                 apps_v1.patch_namespaced_deployment(name=instance_name, namespace=namespace, body=dep_manifest)
             else:
                 raise e
+
+        # 5. Provision Traefik Ingress (*.anubhav.fyi)
+        try:
+            from services.ingress_service import PyroKubeIngressService
+            PyroKubeIngressService.provision_k8s_ingress(instance_name=instance_name, port=port)
+        except Exception:
+            pass
 
         return True
 

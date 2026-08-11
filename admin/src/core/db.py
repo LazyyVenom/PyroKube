@@ -51,6 +51,10 @@ def init_db():
                 conn.execute(text("ALTER TABLE user_services ADD COLUMN port INTEGER DEFAULT 8000"))
             if "build_status" not in usr_cols:
                 conn.execute(text("ALTER TABLE user_services ADD COLUMN build_status VARCHAR DEFAULT 'Success'"))
+            if "wildcard_domain" not in usr_cols:
+                conn.execute(text("ALTER TABLE user_services ADD COLUMN wildcard_domain VARCHAR"))
+            if "custom_domain" not in usr_cols:
+                conn.execute(text("ALTER TABLE user_services ADD COLUMN custom_domain VARCHAR"))
 
     db = SessionLocal()
     try:

@@ -271,3 +271,32 @@ def server_prune_action(request: Request, db: Session = Depends(get_db)):
         "components/server_status.html",
         {"server_status": server_status, "cleanup_result": res},
     )
+
+
+@router.post("/dashboard/services/domain/attach")
+def attach_custom_domain(
+    request: Request,
+    service_id: str = Form(...),
+    custom_domain: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+):
+    service = db.query(UserService).filter(UserService.id == service_id).first()
+    if service:
+        from services.ingress_service import PyroKubeIngressService
+        wildcard_host, custom_host = PyroKubeIngressService.provision_k8s_ingress(
+            instance_name=service.id,
+            port=service.port if hasattr(service, "port") and service.port else 8000,
+            custom_domain=custom_domain,
+            db=db,
+        )
+        service.wildcard_domain = wildcard_host
+        service.custom_domain = custom_host
+        db.commit()
+        db.refresh(service)
+
+    user_services = db.query(UserService).all()
+    return templates.TemplateResponse(
+        request,
+        "components/running_containers.html",
+        {"user_services": user_services},
+    )

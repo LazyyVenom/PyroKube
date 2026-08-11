@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -12,6 +14,7 @@ class Settings(BaseSettings):
     COOKIE_NAME: str = "pyrokube_session"
     COOKIE_SECURE: bool = False
     SESSION_TTL: int = 86400
+    WILDCARD_DOMAIN: Optional[str] = "anubhav.fyi"
 
     model_config = SettingsConfigDict(
         env_file=ENV_FILE, env_file_encoding="utf-8", extra="ignore"
