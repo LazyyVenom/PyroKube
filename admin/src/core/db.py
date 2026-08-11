@@ -38,6 +38,20 @@ def init_db():
             if "memory_allocated_gb" not in columns:
                 conn.execute(text("ALTER TABLE server_status ADD COLUMN memory_allocated_gb FLOAT DEFAULT 0.6"))
 
+    if "user_services" in inspector.get_table_names():
+        usr_cols = [c["name"] for c in inspector.get_columns("user_services")]
+        with engine.begin() as conn:
+            if "git_repo" not in usr_cols:
+                conn.execute(text("ALTER TABLE user_services ADD COLUMN git_repo VARCHAR"))
+            if "git_branch" not in usr_cols:
+                conn.execute(text("ALTER TABLE user_services ADD COLUMN git_branch VARCHAR DEFAULT 'main'"))
+            if "dockerfile_path" not in usr_cols:
+                conn.execute(text("ALTER TABLE user_services ADD COLUMN dockerfile_path VARCHAR DEFAULT 'Dockerfile'"))
+            if "port" not in usr_cols:
+                conn.execute(text("ALTER TABLE user_services ADD COLUMN port INTEGER DEFAULT 8000"))
+            if "build_status" not in usr_cols:
+                conn.execute(text("ALTER TABLE user_services ADD COLUMN build_status VARCHAR DEFAULT 'Success'"))
+
     db = SessionLocal()
     try:
         seed_database(db)

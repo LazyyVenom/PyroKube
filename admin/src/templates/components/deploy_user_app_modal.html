@@ -1,0 +1,93 @@
+<!-- Interactive Custom Application Deployment Modal (Git Repo + Smart Dockerfile Conversion) -->
+<dialog id="deploy-user-app-modal" class="backdrop:bg-ink/80 backdrop:backdrop-blur-xs bg-transparent p-0 w-full max-w-lg">
+  <div class="border border-rule-strong bg-surface p-6 shadow-2xl flex flex-col gap-4">
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between border-b border-rule pb-3">
+      <div class="flex items-center gap-2.5">
+        <span class="size-3 bg-ok animate-pulse"></span>
+        <h3 class="font-bold text-base text-paper">Deploy Custom App (Git / Dockerfile)</h3>
+      </div>
+      <button type="button" onclick="closeUserAppModal()" class="text-slate hover:text-paper text-lg font-bold">✕</button>
+    </div>
+
+    <!-- Deployment Form -->
+    <form id="deploy-user-app-form" hx-post="/dashboard/deploy-user-app" hx-target="#running-containers-list" hx-swap="outerHTML" onsubmit="closeUserAppModal()" class="flex flex-col gap-4 font-mono text-xs">
+      
+      <!-- Smart Conversion Info Banner -->
+      <div class="bg-ink p-3 border border-rule flex flex-col gap-1">
+        <span class="text-ok font-bold text-xs">⚡ Smart GitHub Stack Converter</span>
+        <span class="text-slate text-[11px]">If no Dockerfile is found, PyroKube auto-detects Node.js, Python, Go, Rust, or Static Web and generates an optimized multi-stage build automatically.</span>
+      </div>
+
+      <!-- Form Inputs Grid -->
+      <div class="flex flex-col gap-3">
+        <!-- Application Service Name -->
+        <div class="flex flex-col gap-1">
+          <label for="app-service-name" class="text-slate text-[10px] uppercase">Service Name (Slug)</label>
+          <input type="text" id="app-service-name" name="service_name" required placeholder="e.g. web-api, node-backend"
+            class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper placeholder:text-slate focus:border-ok focus:outline-none">
+        </div>
+
+        <!-- Git Repository URL -->
+        <div class="flex flex-col gap-1">
+          <label for="app-git-repo" class="text-slate text-[10px] uppercase">GitHub Repository URL</label>
+          <input type="url" id="app-git-repo" name="git_repo" required placeholder="e.g. https://github.com/username/my-app.git"
+            class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper placeholder:text-slate focus:border-ok focus:outline-none">
+        </div>
+
+        <!-- Git Branch & Dockerfile Path -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label for="app-git-branch" class="text-slate text-[10px] uppercase">Git Branch</label>
+            <input type="text" id="app-git-branch" name="git_branch" value="main" required
+              class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ok focus:outline-none">
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="app-dockerfile-path" class="text-slate text-[10px] uppercase">Dockerfile Path</label>
+            <input type="text" id="app-dockerfile-path" name="dockerfile_path" value="Dockerfile" required
+              class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ok focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Target Port & CPU Allocation -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label for="app-port" class="text-slate text-[10px] uppercase">Target Port</label>
+            <input type="number" id="app-port" name="port" value="8000" min="1" max="65535" required
+              class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ok focus:outline-none">
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="app-cpu-limit" class="text-slate text-[10px] uppercase">CPU Limit</label>
+            <select id="app-cpu-limit" name="cpu_limit" class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper focus:border-ok focus:outline-none">
+              <option value="500m" selected>500m (0.5 Core)</option>
+              <option value="1000m">1000m (1 Core)</option>
+              <option value="2000m">2000m (2 Cores)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-end gap-3 border-t border-rule pt-4">
+        <button type="button" onclick="closeUserAppModal()" class="px-4 py-2 bg-ink text-slate hover:text-paper font-bold text-xs uppercase tracking-wider">
+          Cancel
+        </button>
+        <button type="submit" class="px-5 py-2 bg-ok text-ink font-bold text-xs uppercase tracking-wider hover:brightness-110 shadow-lg">
+          Build & Deploy Application
+        </button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script>
+  function openUserAppModal() {
+    const dialog = document.getElementById('deploy-user-app-modal');
+    if (dialog) dialog.showModal();
+  }
+
+  function closeUserAppModal() {
+    const dialog = document.getElementById('deploy-user-app-modal');
+    if (dialog) dialog.close();
+  }
+</script>

@@ -38,6 +38,22 @@ class UserService(Base):
     endpoint: Mapped[str] = mapped_column(String, default="")
     cpu_usage: Mapped[str] = mapped_column(String, default="0m / 500m")
     memory_usage: Mapped[str] = mapped_column(String, default="0MB / 512MB")
+    git_repo: Mapped[str] = mapped_column(String, nullable=True)
+    git_branch: Mapped[str] = mapped_column(String, nullable=True, default="main")
+    dockerfile_path: Mapped[str] = mapped_column(String, nullable=True, default="Dockerfile")
+    port: Mapped[int] = mapped_column(Integer, nullable=True, default=8000)
+    build_status: Mapped[str] = mapped_column(String, nullable=True, default="Success")
+
+
+class ImageRegistryRecord(Base):
+    __tablename__ = "image_registry_records"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    tag: Mapped[str] = mapped_column(String, nullable=False, default="latest")
+    digest: Mapped[str] = mapped_column(String, nullable=True)
+    size_mb: Mapped[float] = mapped_column(Float, default=0.0)
+    created_at: Mapped[str] = mapped_column(String, nullable=True)
 
 
 class CatalogService(Base):

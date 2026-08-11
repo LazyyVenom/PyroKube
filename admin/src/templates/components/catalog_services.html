@@ -1,0 +1,90 @@
+<!-- Reusable Self(Managed) Catalog Services Component -->
+<div class="border border-rule-strong bg-surface p-5 flex flex-col gap-4">
+  <!-- Header & Category Filter Controls -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-rule pb-3">
+    <div>
+      <h2 class="font-bold text-base text-paper">Self(Managed) Services Catalog</h2>
+    </div>
+
+    <!-- Search & Category Filter Controls -->
+    <div class="flex flex-col sm:flex-row items-center gap-3">
+      <!-- Search Input Bar -->
+      <div class="relative w-full sm:w-60">
+        <input type="text" id="catalog-search-input" onkeyup="filterCatalogServices()" placeholder="Search catalog..."
+          class="w-full bg-ink border border-rule-strong px-3 py-1.5 font-mono text-xs text-paper placeholder:text-slate focus:border-ember focus:outline-none">
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="flex items-center gap-1 border border-rule-strong bg-surface p-0.5 text-xs font-mono w-full sm:w-auto overflow-x-auto">
+        <button onclick="setCatalogCategory('all')" id="catalog-tab-all"
+          class="catalog-tab-btn active-tab px-2.5 py-1 font-semibold transition-colors bg-ember text-paper whitespace-nowrap">
+          All ({{ services|length }})
+        </button>
+        <button onclick="setCatalogCategory('database')" id="catalog-tab-database"
+          class="catalog-tab-btn px-2.5 py-1 text-paper-soft hover:text-paper transition-colors whitespace-nowrap">
+          DB ({{ services|selectattr('category', 'equalto', 'database')|list|length }})
+        </button>
+        <button onclick="setCatalogCategory('uploads')" id="catalog-tab-uploads"
+          class="catalog-tab-btn px-2.5 py-1 text-paper-soft hover:text-paper transition-colors whitespace-nowrap">
+          Uploads ({{ services|selectattr('category', 'equalto', 'uploads')|list|length }})
+        </button>
+        <button onclick="setCatalogCategory('registry')" id="catalog-tab-registry"
+          class="catalog-tab-btn px-2.5 py-1 text-paper-soft hover:text-paper transition-colors whitespace-nowrap">
+          Registry ({{ services|selectattr('category', 'equalto', 'registry')|list|length }})
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Managed Services Table -->
+  <div class="overflow-x-auto">
+    <table class="w-full text-left font-mono text-xs" id="managed-services-table">
+      <thead>
+        <tr class="border-b border-rule bg-surface-alt text-slate uppercase text-[10px] tracking-wider">
+          <th class="py-2.5 px-3">Service</th>
+          <th class="py-2.5 px-3">Category</th>
+          <th class="py-2.5 px-3">Status</th>
+          <th class="py-2.5 px-3 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-rule" id="managed-services-tbody">
+        {% for service in services %}
+        <tr class="catalog-service-row hover:bg-surface-alt/50 transition-colors" data-category="{{ service.category }}">
+          <td class="py-3 px-3">
+            <button onclick="openDeployModal('{{ service.id }}', '{{ service.name }}', '{{ service.port }}')"
+              class="font-sans font-bold text-paper text-sm hover:text-ember hover:underline text-left transition-colors cursor-pointer" title="Click to configure & deploy">
+              {{ service.name }}
+            </button>
+          </td>
+          <td class="py-3 px-3">
+            <span class="bg-surface-alt border border-rule px-2 py-0.5 font-mono text-[10px] text-paper-soft">
+              {{ service.category_label }}
+            </span>
+          </td>
+          <td class="py-3 px-3">
+            {% if service.status == 'Active' %}
+            <span class="inline-flex items-center gap-1.5 text-ok font-semibold">
+              <span class="size-1.5 rounded-full bg-ok"></span>Active
+            </span>
+            {% elif service.status == 'Failed' %}
+            <span class="inline-flex items-center gap-1.5 text-crit font-semibold">
+              <span class="size-1.5 rounded-full bg-crit"></span>Failed
+            </span>
+            {% else %}
+            <span class="inline-flex items-center gap-1.5 text-slate font-semibold">
+              <span class="size-1.5 rounded-full bg-slate"></span>InActive
+            </span>
+            {% endif %}
+          </td>
+          <td class="py-3 px-3 text-right">
+            <button onclick="openDeployModal('{{ service.id }}', '{{ service.name }}', '{{ service.port }}')"
+              class="border border-ember bg-ember/10 text-ember px-3 py-1 text-xs font-mono uppercase hover:bg-ember hover:text-paper font-bold transition-all">
+              Deploy
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<!-- Private Container Image Registry Catalog Component -->
+<div class="border border-rule bg-surface p-6 flex flex-col gap-4 font-mono text-xs shadow-xl">
+  <div class="flex items-center justify-between border-b border-rule pb-3">
+    <div class="flex items-center gap-2.5">
+      <span class="size-3 bg-kube animate-pulse"></span>
+      <h3 class="font-bold text-sm text-paper uppercase tracking-wider">Private Container Registry (`pyro-registry:5000`)</h3>
+    </div>
+    <span class="text-slate text-[10px] bg-ink px-2.5 py-1 border border-rule">In-Cluster Official Registry v2</span>
+  </div>
+
+  {% if registry_records %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {% for record in registry_records %}
+        <div class="bg-ink p-4 border border-rule flex flex-col gap-2 hover:border-kube transition-colors">
+          <div class="flex items-center justify-between">
+            <span class="text-kube font-bold text-sm">{{ record.name }}</span>
+            <span class="text-ok bg-ok/10 text-[10px] px-2 py-0.5 border border-ok/30">{{ record.tag }}</span>
+          </div>
+          <div class="text-slate text-[11px] font-sans">
+            Size: <span class="text-paper font-mono">{{ record.size_mb }} MB</span>
+          </div>
+          {% if record.digest %}
+            <div class="text-slate-softer text-[9px] truncate">
+              SHA: {{ record.digest[:20] }}...
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="bg-ink p-6 border border-rule text-center flex flex-col items-center gap-2">
+      <span class="text-slate text-xs">No private images stored in registry yet.</span>
+      <span class="text-paper-soft text-[11px]">Deploying custom user applications automatically builds, tags, and registers images inside the in-cluster private container registry (`registry.pyro-registry.svc:5000/apps/...`).</span>
+    </div>
+  {% endif %}
+</div>

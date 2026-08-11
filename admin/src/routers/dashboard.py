@@ -188,3 +188,86 @@ def dashboard_status(request: Request):
         "partials/status.html",
         {"remaining": humanize_seconds(remaining)},
     )
+
+
+@router.get("/dashboard/deploy-user-app-modal")
+def deploy_user_app_modal(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "components/deploy_user_app_modal.html",
+        {},
+    )
+
+
+@router.post("/dashboard/deploy-user-app")
+async def deploy_user_app(
+    request: Request,
+    service_name: str = Form(...),
+    git_repo: str = Form(...),
+    git_branch: str = Form("main"),
+    dockerfile_path: str = Form("Dockerfile"),
+    port: int = Form(8000),
+    cpu_limit: str = Form("500m"),
+    memory_limit: str = Form("512Mi"),
+    db: Session = Depends(get_db),
+):
+    await PyroKubeK8sService.deploy_user_app_service(
+        db=db,
+        service_name=service_name,
+        git_repo=git_repo,
+        git_branch=git_branch,
+        dockerfile_path=dockerfile_path,
+        port=port,
+        cpu_limit=cpu_limit,
+        memory_limit=memory_limit,
+    )
+
+    user_services = db.query(UserService).all()
+    return templates.TemplateResponse(
+        request,
+        "components/running_containers.html",
+        {"user_services": user_services},
+    )
+
+
+@router.delete("/dashboard/services/{service_id}")
+def delete_service(
+    request: Request,
+    service_id: str,
+    db: Session = Depends(get_db),
+):
+    PyroKubeK8sService.teardown_k8s_managed_workload(service_id)
+    service = db.query(UserService).filter(UserService.id == service_id).first()
+    if service:
+        db.delete(service)
+        db.commit()
+
+    user_services = db.query(UserService).all()
+    return templates.TemplateResponse(
+        request,
+        "components/running_containers.html",
+        {"user_services": user_services},
+    )
+
+
+@router.get("/dashboard/registry")
+def registry_view(request: Request, db: Session = Depends(get_db)):
+    from models.dashboard import ImageRegistryRecord
+    records = db.query(ImageRegistryRecord).all()
+    return templates.TemplateResponse(
+        request,
+        "components/registry_tab.html",
+        {"registry_records": records},
+    )
+
+
+@router.post("/dashboard/server/prune")
+def server_prune_action(request: Request, db: Session = Depends(get_db)):
+    from services.cleanup import prune_server_storage
+    res = prune_server_storage(db)
+    server_status = sync_telemetry_status(db)
+    return templates.TemplateResponse(
+        request,
+        "components/server_status.html",
+        {"server_status": server_status, "cleanup_result": res},
+    )

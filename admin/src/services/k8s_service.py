@@ -62,6 +62,80 @@ class PyroKubeK8sService:
         return user_service
 
     @staticmethod
+    async def deploy_user_app_service(
+        db: Session,
+        service_name: str,
+        git_repo: str,
+        git_branch: str = "main",
+        dockerfile_path: str = "Dockerfile",
+        port: int = 8000,
+        cpu_limit: str = "500m",
+        memory_limit: str = "512Mi",
+        env_vars: Optional[dict] = None,
+    ) -> UserService:
+        log_process(db, service_name, "DEPLOY_USER_APP", "INFO", f"Triggering Smart GitHub Repo Conversion & Build for '{service_name}' ({git_repo})")
+
+        from services.containerd_builder import build_and_push_user_app
+        image_tag, detected_port, detected_stack = build_and_push_user_app(
+            service_name=service_name,
+            git_repo=git_repo,
+            git_branch=git_branch,
+            custom_dockerfile=dockerfile_path,
+        )
+
+        app_port = port if port else detected_port
+        target_namespace = f"pyro-{service_name}"
+        endpoint = f"{service_name}.{target_namespace}.svc:{app_port}"
+
+        # Provision real K8s resources inside dedicated namespace pyro-{service_name}
+        PyroKubeK8sService.provision_k8s_managed_workload(
+            instance_name=service_name,
+            image=image_tag if image_tag else f"pyro-app/{service_name}:latest",
+            port=app_port,
+            storage_gb=0,
+            cpu_limit=cpu_limit,
+            env_vars=env_vars,
+        )
+
+        user_service = db.query(UserService).filter(UserService.id == service_name).first()
+        if not user_service:
+            user_service = UserService(
+                id=service_name,
+                name=service_name,
+                tag="user_app",
+                tag_color="text-ok",
+                ready_pods=1,
+                total_pods=1,
+                status="Running",
+                restarts=0,
+                image=image_tag,
+                namespace=target_namespace,
+                endpoint=endpoint,
+                cpu_usage=f"20m / {cpu_limit}",
+                memory_usage=f"64MB / {memory_limit}",
+                git_repo=git_repo,
+                git_branch=git_branch,
+                dockerfile_path=dockerfile_path,
+                port=app_port,
+                build_status="Success",
+            )
+            db.add(user_service)
+        else:
+            user_service.status = "Running"
+            user_service.ready_pods = 1
+            user_service.namespace = target_namespace
+            user_service.endpoint = endpoint
+            user_service.git_repo = git_repo
+            user_service.git_branch = git_branch
+            user_service.port = app_port
+            user_service.build_status = "Success"
+
+        db.commit()
+        db.refresh(user_service)
+        log_process(db, service_name, "DEPLOY_USER_APP", "SUCCESS", f"User app '{service_name}' ({detected_stack}) active at '{endpoint}'")
+        return user_service
+
+    @staticmethod
     async def add_database_instance(
         db: Session,
         service_id: str,
@@ -259,12 +333,25 @@ class PyroKubeK8sService:
                 persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(claim_name=f"{instance_name}-pvc")
             ))
 
+        liveness_probe = client.V1Probe(
+            tcp_socket=client.V1TCPSocketAction(port=port),
+            initial_delay_seconds=10,
+            period_seconds=10,
+        )
+        readiness_probe = client.V1Probe(
+            tcp_socket=client.V1TCPSocketAction(port=port),
+            initial_delay_seconds=5,
+            period_seconds=5,
+        )
+
         container = client.V1Container(
             name=instance_name,
             image=image,
             ports=container_ports,
             env=env_list if env_list else None,
             volume_mounts=volume_mounts if volume_mounts else None,
+            liveness_probe=liveness_probe,
+            readiness_probe=readiness_probe,
             resources=client.V1ResourceRequirements(
                 requests={"cpu": "50m", "memory": "128Mi"},
                 limits={"cpu": cpu_limit, "memory": "1024Mi"},

@@ -8,9 +8,21 @@ block content %}
       <b class="text-xl font-extrabold tracking-tight">PyroKube</b>
     </div>
 
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3">
+      <button type="button" onclick="openDocsModal()"
+        class="border border-rule-strong px-3 py-1.5 text-xs font-mono text-paper-soft hover:text-paper hover:bg-surface-alt font-bold uppercase transition-all">
+        📖 App Specs
+      </button>
+      <button type="button" hx-post="/dashboard/server/prune" hx-target="#server-status-container" hx-swap="outerHTML"
+        class="border border-ember/60 bg-ember/10 text-ember px-3 py-1.5 text-xs font-mono font-bold uppercase hover:bg-ember hover:text-paper transition-all">
+        🧹 Prune Disk
+      </button>
+      <button type="button" onclick="openUserAppModal()"
+        class="border border-ok bg-ok/10 text-ok px-3.5 py-1.5 text-xs font-mono tracking-wider uppercase hover:bg-ok hover:text-ink font-bold transition-all shadow-md">
+        + Deploy Custom App (Git)
+      </button>
       <a href="/logout"
-        class="border border-rule-strong px-3.5 py-1.5 text-xs font-mono tracking-wider text-paper uppercase hover:bg-paper hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper">
+        class="border border-rule-strong px-3 py-1.5 text-xs font-mono tracking-wider text-paper uppercase hover:bg-paper hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper">
         Log out
       </a>
     </div>
@@ -25,108 +37,17 @@ block content %}
   <!-- Deploy Service Modal Component -->
   {% include 'components/deploy_modal.html' %}
 
+  <!-- Deploy Custom App Modal Component -->
+  {% include 'components/deploy_user_app_modal.html' %}
+
+  <!-- Developer Specs Docs Modal Component -->
+  {% include 'components/docs_modal.html' %}
+
   <!-- Process Audit Logs Modal Component -->
   {% include 'components/process_logs.html' %}
 
-  <!-- Managed Services Table Component -->
-  <div class="border border-rule-strong bg-surface p-5 flex flex-col gap-4">
-    <!-- Header & Category Filter Controls -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-rule pb-3">
-      <div>
-        <h2 class="font-bold text-base text-paper">Self(Managed) Services</h2>
-      </div>
-
-      <!-- Search & Category Filter Controls -->
-      <div class="flex flex-col sm:flex-row items-center gap-3">
-        <!-- Search Input Bar -->
-        <div class="relative w-full sm:w-60">
-          <input type="text" id="catalog-search-input" onkeyup="filterCatalogServices()" placeholder="Search services..."
-            class="w-full bg-ink border border-rule-strong px-3 py-1.5 font-mono text-xs text-paper placeholder:text-slate focus:border-ember focus:outline-none">
-        </div>
-
-        <!-- Category Filter Tabs -->
-        <div class="flex items-center gap-1 border border-rule-strong bg-surface p-0.5 text-xs font-mono w-full sm:w-auto overflow-x-auto">
-          <button onclick="setCatalogCategory('all')" id="catalog-tab-all"
-            class="catalog-tab-btn active-tab px-2.5 py-1 font-semibold transition-colors bg-ember text-paper whitespace-nowrap">
-            All ({{ services|length }})
-          </button>
-          <button onclick="setCatalogCategory('database')" id="catalog-tab-database"
-            class="catalog-tab-btn px-2.5 py-1 text-paper-soft hover:text-paper transition-colors whitespace-nowrap">
-            DB ({{ services|selectattr('category', 'equalto', 'database')|list|length }})
-          </button>
-          <button onclick="setCatalogCategory('uploads')" id="catalog-tab-uploads"
-            class="catalog-tab-btn px-2.5 py-1 text-paper-soft hover:text-paper transition-colors whitespace-nowrap">
-            Uploads ({{ services|selectattr('category', 'equalto', 'uploads')|list|length }})
-          </button>
-          <button onclick="setCatalogCategory('registry')" id="catalog-tab-registry"
-            class="catalog-tab-btn px-2.5 py-1 text-paper-soft hover:text-paper transition-colors whitespace-nowrap">
-            Registry ({{ services|selectattr('category', 'equalto', 'registry')|list|length }})
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Managed Services Table -->
-    <div class="overflow-x-auto">
-      <table class="w-full text-left font-mono text-xs" id="managed-services-table">
-        <thead>
-          <tr class="border-b border-rule bg-surface-alt text-slate uppercase text-[10px] tracking-wider">
-            <th class="py-2.5 px-3">Service</th>
-            <th class="py-2.5 px-3">Category</th>
-            <th class="py-2.5 px-3">Status</th>
-            <th class="py-2.5 px-3 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-rule" id="managed-services-tbody">
-          {% for service in services %}
-          <tr class="catalog-service-row hover:bg-surface-alt/50 transition-colors" data-category="{{ service.category }}">
-            <td class="py-3 px-3">
-              <button onclick="openDeployModal('{{ service.name }}', '{{ service.port }}', '{{ service.subtitle }}')"
-                class="font-sans font-bold text-paper text-sm hover:text-ember hover:underline text-left transition-colors cursor-pointer" title="Click to configure & deploy">
-                {{ service.name }}
-              </button>
-            </td>
-            <td class="py-3 px-3">
-              <span class="bg-surface-alt border border-rule px-2 py-0.5 font-mono text-[10px] text-paper-soft">
-                {{ service.category_label }}
-              </span>
-            </td>
-            <td class="py-3 px-3">
-              {% if service.status == 'Active' %}
-              <span class="inline-flex items-center gap-1.5 text-ok font-semibold">
-                <span class="size-1.5 rounded-full bg-ok"></span>Active
-              </span>
-              {% elif service.status == 'Failed' %}
-              <span class="inline-flex items-center gap-1.5 text-crit font-semibold">
-                <span class="size-1.5 rounded-full bg-crit"></span>Failed
-              </span>
-              {% else %}
-              <span class="inline-flex items-center gap-1.5 text-slate font-semibold">
-                <span class="size-1.5 rounded-full bg-slate"></span>InActive
-              </span>
-              {% endif %}
-            </td>
-            <td class="py-3 px-3 text-right relative">
-              <div class="relative inline-block text-left">
-                <button onclick="toggleCatalogMenu(event, 'menu-catalog-{{ service.id }}')" class="px-2 py-1 text-slate hover:text-paper hover:bg-surface-alt font-bold text-base leading-none transition-colors border border-transparent hover:border-rule">
-                  ⋮
-                </button>
-                <div id="menu-catalog-{{ service.id }}" class="catalog-action-menu hidden absolute right-0 mt-1 w-32 border border-rule-strong bg-surface p-1 shadow-xl z-20 font-mono text-xs text-left">
-                  <button onclick="openDeployModal('{{ service.name }}', '{{ service.port }}', '{{ service.subtitle }}')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
-                    Deploy
-                  </button>
-                  <button onclick="openDeployModal('{{ service.name }}', '{{ service.port }}', '{{ service.subtitle }}')" class="w-full text-left px-2.5 py-1.5 text-paper-soft hover:bg-surface-alt hover:text-paper transition-colors">
-                    Configure
-                  </button>
-                </div>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <!-- Managed Services Catalog Component -->
+  {% include 'components/catalog_services.html' %}
 </div>
 
 <!-- Deployment Configuration Modal -->

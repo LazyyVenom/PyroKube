@@ -1,0 +1,92 @@
+<!-- Interactive Developer Documentation & Image Specification Modal -->
+<dialog id="docs-modal" class="backdrop:bg-ink/80 backdrop:backdrop-blur-xs bg-transparent p-0 w-full max-w-2xl">
+  <div class="border border-rule-strong bg-surface p-6 shadow-2xl flex flex-col gap-4 font-sans text-xs">
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between border-b border-rule pb-3">
+      <div class="flex items-center gap-2.5">
+        <span class="size-3 bg-ember"></span>
+        <h3 class="font-heading font-bold text-base text-paper">PyroKube Developer & Application Specification Guide</h3>
+      </div>
+      <button type="button" onclick="closeDocsModal()" class="text-slate hover:text-paper text-lg font-bold font-mono">✕</button>
+    </div>
+
+    <!-- Documentation Content -->
+    <div class="flex flex-col gap-4 text-slate-300 overflow-y-auto max-h-[70vh] pr-2">
+      
+      <!-- Section 1: Container Images & Health Probes -->
+      <div class="bg-ink p-4 border border-rule flex flex-col gap-2">
+        <h4 class="font-heading font-bold text-sm text-paper flex items-center gap-2">
+          <span class="text-ok">1.</span> Application Image & Health Endpoint Specs
+        </h4>
+        <p class="text-slate-400">
+          PyroKube runs native Kubernetes liveness and readiness health check probes on your application container port:
+        </p>
+        <ul class="list-disc list-inside space-y-1 font-mono text-[11px] text-paper-soft pl-2">
+          <li>Declare target container port with <code class="text-ember">EXPOSE &lt;port&gt;</code> in Dockerfile.</li>
+          <li>Expose a GET <code class="text-ok">/healthz</code> or HTTP 200 endpoint for automated health checks.</li>
+          <li>Container health probes run every 10 seconds automatically.</li>
+        </ul>
+      </div>
+
+      <!-- Section 2: Service Mesh DNS Routing -->
+      <div class="bg-ink p-4 border border-rule flex flex-col gap-2">
+        <h4 class="font-heading font-bold text-sm text-paper flex items-center gap-2">
+          <span class="text-kube">2.</span> Inter-Service Mesh Connection URIs
+        </h4>
+        <p class="text-slate-400">
+          Once a managed catalog engine (Postgres, Redis, Mongo, RabbitMQ) is Active, its internal K8s cluster DNS endpoint is immediately discoverable from any custom app container:
+        </p>
+        <div class="bg-surface p-3 border border-rule font-mono text-[11px] space-y-1 text-slate-200">
+          <div>PostgreSQL: <span class="text-kube">postgres-main.pyro-postgres-main.svc:5432</span></div>
+          <div>Redis Cache: <span class="text-kube">redis-cache.pyro-redis-cache.svc:6379</span></div>
+          <div>MongoDB Store: <span class="text-kube">mongo-store.pyro-mongo-store.svc:27017</span></div>
+          <div>RabbitMQ Broker: <span class="text-kube">rabbitmq-main.pyro-rabbitmq-main.svc:5672</span></div>
+        </div>
+      </div>
+
+      <!-- Section 3: Smart GitHub Stack Converter -->
+      <div class="bg-ink p-4 border border-rule flex flex-col gap-2">
+        <h4 class="font-heading font-bold text-sm text-paper flex items-center gap-2">
+          <span class="text-ember">3.</span> Zero-Dockerfile Auto Stack Conversion
+        </h4>
+        <p class="text-slate-400">
+          Deploying from GitHub does not require writing a custom Dockerfile! PyroKube automatically inspects root manifests and builds:
+        </p>
+        <div class="grid grid-cols-2 gap-2 font-mono text-[11px]">
+          <div class="bg-surface p-2 border border-rule">
+            <span class="text-ember font-bold">package.json</span> → Multi-stage Node.js 20
+          </div>
+          <div class="bg-surface p-2 border border-rule">
+            <span class="text-ok font-bold">requirements.txt</span> → Python 3.11-slim
+          </div>
+          <div class="bg-surface p-2 border border-rule">
+            <span class="text-kube font-bold">go.mod</span> → 2-Stage Go Alpine Builder
+          </div>
+          <div class="bg-surface p-2 border border-rule">
+            <span class="text-paper font-bold">index.html</span> → High-speed Nginx Web
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="flex items-center justify-end border-t border-rule pt-3">
+      <button type="button" onclick="closeDocsModal()" class="px-5 py-2 bg-ink text-slate hover:text-paper font-bold text-xs uppercase font-mono tracking-wider">
+        Close Documentation
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  function openDocsModal() {
+    const dialog = document.getElementById('docs-modal');
+    if (dialog) dialog.showModal();
+  }
+
+  function closeDocsModal() {
+    const dialog = document.getElementById('docs-modal');
+    if (dialog) dialog.close();
+  }
+</script>
