@@ -1,32 +1,7 @@
 {% extends 'base.html' %} {% block title %}Dashboard — PyroKube{% endblock %} {%
 block content %}
 <div class="flex flex-col gap-6">
-  <!-- Top Navigation Header -->
-  <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-rule-strong pb-4">
-    <div class="flex items-center gap-3">
-      <span class="size-4 bg-ember"></span>
-      <b class="text-xl font-extrabold tracking-tight">PyroKube</b>
-    </div>
-
-    <div class="flex items-center gap-3">
-      <button type="button" onclick="openDocsModal()"
-        class="border border-rule-strong px-3 py-1.5 text-xs font-mono text-paper-soft hover:text-paper hover:bg-surface-alt font-bold uppercase transition-all">
-        📖 App Specs
-      </button>
-      <button type="button" hx-post="/dashboard/server/prune" hx-target="#server-status-container" hx-swap="outerHTML"
-        class="border border-ember/60 bg-ember/10 text-ember px-3 py-1.5 text-xs font-mono font-bold uppercase hover:bg-ember hover:text-paper transition-all">
-        🧹 Prune Disk
-      </button>
-      <button type="button" onclick="openUserAppModal()"
-        class="border border-ok bg-ok/10 text-ok px-3.5 py-1.5 text-xs font-mono tracking-wider uppercase hover:bg-ok hover:text-ink font-bold transition-all shadow-md">
-        + Deploy Custom App (Git)
-      </button>
-      <a href="/logout"
-        class="border border-rule-strong px-3 py-1.5 text-xs font-mono tracking-wider text-paper uppercase hover:bg-paper hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper">
-        Log out
-      </a>
-    </div>
-  </div>
+  {% set current_page = 'dashboard' %}
 
   <!-- Server Status Component -->
   {% include 'components/server_status.html' %}

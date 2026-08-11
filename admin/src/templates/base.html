@@ -36,8 +36,12 @@
     </style>
 </head>
 
-<body class="bg-ink text-paper font-sans antialiased">
-  <main class="mx-auto max-w-5xl px-6 py-10">
+<body class="bg-ink text-paper font-sans antialiased min-h-screen">
+  <!-- Left Vertical Sidebar Component -->
+  {% include 'components/sidebar.html' %}
+
+  <!-- Main Content View Area -->
+  <main class="ml-64 p-6 md:p-8 min-h-screen">
     {% block content %}{% endblock %}
   </main>
 </body>

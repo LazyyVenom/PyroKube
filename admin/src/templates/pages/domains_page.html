@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Domains & Ingress — PyroKube{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6 max-w-7xl mx-auto py-6 px-4">
+  {% set current_page = 'domains' %}
+
+  <!-- Page Header Title -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-rule pb-4">
+    <div>
+      <h1 class="font-heading font-extrabold text-2xl text-paper">Domains & Ingress Routing</h1>
+      <p class="text-xs text-slate-400 font-mono mt-1">Manage Traefik Ingress routes, auto-allotted wildcard subdomains, and external custom domain attachments.</p>
+    </div>
+    
+    <!-- Traefik Status Gauge -->
+    <div class="flex items-center gap-3 bg-surface p-3 border border-rule font-mono text-xs">
+      <span class="size-2.5 rounded-full bg-ok animate-pulse"></span>
+      <div>
+        <span class="text-slate block text-[10px] uppercase">Ingress Engine</span>
+        <span class="font-bold text-paper">Traefik v3.0 (K3s Built-in)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wildcard Config Banner -->
+  <div class="border border-rule-strong bg-surface p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex flex-col gap-1">
+      <span class="text-slate font-mono text-[10px] uppercase">Auto-Allotted Wildcard Base Domain</span>
+      <span class="font-mono font-bold text-lg text-kube">*.{{ wildcard_domain if wildcard_domain else 'anubhav.fyi' }}</span>
+      <span class="text-xs text-slate-400">All deployed services automatically receive a subdomain URL under this base domain.</span>
+    </div>
+    <div class="bg-ink px-4 py-3 border border-rule font-mono text-xs text-paper-soft">
+      CNAME Target: <code class="text-ember font-bold">72.61.239.5</code>
+    </div>
+  </div>
+
+  <!-- Domain Attachment Table -->
+  <div class="border border-rule-strong bg-surface p-5 flex flex-col gap-4">
+    <div class="flex items-center justify-between border-b border-rule pb-3">
+      <h2 class="font-bold text-base text-paper font-heading">Active Service Ingress Routes ({{ user_services|length }})</h2>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left font-mono text-xs">
+        <thead>
+          <tr class="border-b border-rule bg-surface-alt text-slate uppercase text-[10px] tracking-wider">
+            <th class="py-2.5 px-3">Service Name</th>
+            <th class="py-2.5 px-3">Namespace</th>
+            <th class="py-2.5 px-3">Target Port</th>
+            <th class="py-2.5 px-3">Wildcard Subdomain URL</th>
+            <th class="py-2.5 px-3">Attached Custom Domain</th>
+            <th class="py-2.5 px-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-rule">
+          {% for service in user_services %}
+          <tr class="hover:bg-surface-alt/50 transition-colors">
+            <td class="py-3 px-3 font-bold text-paper text-sm">
+              {{ service.name }}
+            </td>
+            <td class="py-3 px-3">
+              <span class="bg-surface-alt border border-rule px-2 py-0.5 text-[10px] text-paper-soft">
+                {{ service.namespace }}
+              </span>
+            </td>
+            <td class="py-3 px-3 text-ok font-bold">
+              :{{ service.port if service.port else 8000 }}
+            </td>
+            <td class="py-3 px-3">
+              {% if service.wildcard_domain %}
+              <a href="http://{{ service.wildcard_domain }}" target="_blank" class="text-kube hover:underline font-bold flex items-center gap-1">
+                🌐 {{ service.wildcard_domain }} ↗
+              </a>
+              {% else %}
+              <span class="text-slate-softer text-[10px] italic">Unassigned</span>
+              {% endif %}
+            </td>
+            <td class="py-3 px-3">
+              {% if service.custom_domain %}
+              <span class="text-ok font-bold bg-ok/10 border border-ok/30 px-2 py-0.5 text-[11px]">
+                🔗 {{ service.custom_domain }}
+              </span>
+              {% else %}
+              <span class="text-slate-softer text-[10px] italic">No custom domain attached</span>
+              {% endif %}
+            </td>
+            <td class="py-3 px-3 text-right">
+              <button onclick="openDomainModal('{{ service.id }}', '{{ service.wildcard_domain }}', '{{ service.custom_domain }}')"
+                class="px-3 py-1.5 bg-kube/10 border border-kube text-kube hover:bg-kube hover:text-ink font-bold text-xs uppercase tracking-wider transition-all">
+                Attach / Edit Domain
+              </button>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="py-8 text-center text-slate font-mono text-xs">
+              No active services deployed yet. Deploy a custom app or catalog service to manage Ingress routing.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+{% include 'components/domain_modal.html' %}
+{% include 'components/deploy_user_app_modal.html' %}
+{% include 'components/docs_modal.html' %}
+{% endblock %}

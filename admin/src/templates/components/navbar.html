@@ -1,0 +1,50 @@
+<!-- Clean Top Navigation Bar Header Component -->
+<div class="flex flex-col gap-3 border-b-2 border-rule-strong pb-4">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <!-- Brand Logo -->
+    <div class="flex items-center gap-3">
+      <span class="size-4 bg-ember"></span>
+      <a href="/dashboard" class="text-xl font-extrabold tracking-tight font-heading text-paper hover:text-ember transition-colors">PyroKube</a>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="flex items-center gap-1 border border-rule-strong bg-surface p-1 font-mono text-xs overflow-x-auto">
+      <a href="/dashboard"
+        class="px-3 py-1.5 font-bold transition-all {% if current_page == 'dashboard' %}bg-ember text-paper{% else %}text-slate hover:text-paper hover:bg-surface-alt{% endif %}">
+        🖥️ Overview
+      </a>
+      <a href="/dashboard/domains-page"
+        class="px-3 py-1.5 font-bold transition-all {% if current_page == 'domains' %}bg-ember text-paper{% else %}text-slate hover:text-paper hover:bg-surface-alt{% endif %}">
+        🌐 Domains
+      </a>
+      <a href="/dashboard/registry-page"
+        class="px-3 py-1.5 font-bold transition-all {% if current_page == 'registry' %}bg-ember text-paper{% else %}text-slate hover:text-paper hover:bg-surface-alt{% endif %}">
+        🐳 Registry
+      </a>
+      <a href="/dashboard/cleanup-page"
+        class="px-3 py-1.5 font-bold transition-all {% if current_page == 'cleanup' %}bg-ember text-paper{% else %}text-slate hover:text-paper hover:bg-surface-alt{% endif %}">
+        🧹 Storage Cleanup
+      </a>
+      <a href="/dashboard/crons-page"
+        class="px-3 py-1.5 font-bold transition-all {% if current_page == 'crons' %}bg-ember text-paper{% else %}text-slate hover:text-paper hover:bg-surface-alt{% endif %}">
+        ⏱️ CronJobs
+      </a>
+    </nav>
+
+    <!-- Action & Auth Controls -->
+    <div class="flex items-center gap-3">
+      <button type="button" onclick="openDocsModal()"
+        class="border border-rule-strong px-3 py-1.5 text-xs font-mono text-paper-soft hover:text-paper hover:bg-surface-alt font-bold uppercase transition-all">
+        📖 App Specs
+      </button>
+      <button type="button" onclick="openUserAppModal()"
+        class="border border-ok bg-ok/10 text-ok px-3.5 py-1.5 text-xs font-mono tracking-wider uppercase hover:bg-ok hover:text-ink font-bold transition-all shadow-md">
+        + Deploy Custom App (Git)
+      </button>
+      <a href="/logout"
+        class="border border-rule-strong px-3 py-1.5 text-xs font-mono tracking-wider text-paper uppercase hover:bg-paper hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper">
+        Log out
+      </a>
+    </div>
+  </div>
+</div>

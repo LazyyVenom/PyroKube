@@ -273,10 +273,36 @@ def server_prune_action(request: Request, db: Session = Depends(get_db)):
     )
 
 
+@router.get("/dashboard/domains/check-availability")
+def check_subdomain_availability(
+    request: Request,
+    prefix: str,
+    service_id: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+    from services.ingress_service import PyroKubeIngressService
+    clean_prefix = prefix.strip().lower().replace(" ", "-") if prefix else ""
+    if not clean_prefix:
+        return HTMLResponse("<span class='text-slate text-[10px] italic'>Type a subdomain prefix...</span>")
+
+    target_host = f"{clean_prefix}.{setting.WILDCARD_DOMAIN}" if setting.WILDCARD_DOMAIN else clean_prefix
+    is_available = PyroKubeIngressService.is_subdomain_available(db, clean_prefix, current_service_id=service_id)
+
+    if is_available:
+        return HTMLResponse(
+            f"<span class='text-ok font-bold text-[11px] flex items-center gap-1'>🟢 <b>{target_host}</b> is Available!</span>"
+        )
+    else:
+        return HTMLResponse(
+            f"<span class='text-crit font-bold text-[11px] flex items-center gap-1'>🔴 <b>{target_host}</b> is Occupied / Taken!</span>"
+        )
+
+
 @router.post("/dashboard/services/domain/attach")
 def attach_custom_domain(
     request: Request,
     service_id: str = Form(...),
+    subdomain_prefix: Optional[str] = Form(None),
     custom_domain: Optional[str] = Form(None),
     db: Session = Depends(get_db),
 ):
@@ -287,6 +313,7 @@ def attach_custom_domain(
             instance_name=service.id,
             port=service.port if hasattr(service, "port") and service.port else 8000,
             custom_domain=custom_domain,
+            subdomain_prefix=subdomain_prefix,
             db=db,
         )
         service.wildcard_domain = wildcard_host
@@ -299,4 +326,99 @@ def attach_custom_domain(
         request,
         "components/running_containers.html",
         {"user_services": user_services},
+    )
+
+
+@router.get("/dashboard/domains-page")
+def domains_page_view(request: Request, db: Session = Depends(get_db)):
+    user_services = db.query(UserService).all()
+    return templates.TemplateResponse(
+        request,
+        "pages/domains_page.html",
+        {
+            "user_services": user_services,
+            "wildcard_domain": setting.WILDCARD_DOMAIN,
+        },
+    )
+
+
+@router.get("/dashboard/registry-page")
+def registry_page_view(request: Request, db: Session = Depends(get_db)):
+    from models.dashboard import ImageRegistryRecord
+    records = db.query(ImageRegistryRecord).all()
+    return templates.TemplateResponse(
+        request,
+        "pages/registry_page.html",
+        {"registry_records": records},
+    )
+
+
+@router.get("/dashboard/cleanup-page")
+def cleanup_page_view(request: Request, db: Session = Depends(get_db)):
+    server_status = sync_telemetry_status(db)
+    cleanup_logs = (
+        db.query(ProcessLog)
+        .filter(ProcessLog.action == "CLEANUP")
+        .order_by(ProcessLog.id.desc())
+        .limit(20)
+        .all()
+    )
+    return templates.TemplateResponse(
+        request,
+        "pages/cleanup_page.html",
+        {"server_status": server_status, "cleanup_logs": cleanup_logs},
+    )
+
+
+@router.get("/dashboard/crons-page")
+def crons_page_view(request: Request, db: Session = Depends(get_db)):
+    from models.cron import CronJobRecord
+    cron_records = db.query(CronJobRecord).all()
+    return templates.TemplateResponse(
+        request,
+        "pages/crons_page.html",
+        {"cron_records": cron_records},
+    )
+
+
+@router.post("/dashboard/crons/create")
+def crons_create_action(
+    request: Request,
+    name: str = Form(...),
+    schedule: str = Form("0 2 * * *"),
+    target_service: str = Form(...),
+    command: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    from services.cron_service import PyroKubeCronService
+    PyroKubeCronService.create_cronjob(
+        db=db,
+        name=name,
+        schedule=schedule,
+        target_service=target_service,
+        command=command,
+    )
+    from models.cron import CronJobRecord
+    cron_records = db.query(CronJobRecord).all()
+    return templates.TemplateResponse(
+        request,
+        "pages/crons_page.html",
+        {"cron_records": cron_records},
+    )
+
+
+@router.post("/dashboard/crons/delete")
+def crons_delete_action(
+    request: Request,
+    cron_name: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    from services.cron_service import PyroKubeCronService
+    PyroKubeCronService.delete_cronjob(db, cron_name)
+    from models.cron import CronJobRecord
+    cron_records = db.query(CronJobRecord).all()
+    return templates.TemplateResponse(
+        request,
+        "pages/crons_page.html",
+        {"cron_records": cron_records},
     )

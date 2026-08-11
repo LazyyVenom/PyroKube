@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Container Registry — PyroKube{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6 max-w-7xl mx-auto py-6 px-4">
+  {% set current_page = 'registry' %}
+
+  <!-- Page Header Title -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-rule pb-4">
+    <div>
+      <h1 class="font-heading font-extrabold text-2xl text-paper">In-Cluster Container Image Registry</h1>
+      <p class="text-xs text-slate-400 font-mono mt-1">Official Docker Distribution Registry (registry:2) running inside namespace pyro-registry on port 5000.</p>
+    </div>
+
+    <!-- Registry Status Gauge -->
+    <div class="flex items-center gap-3 bg-surface p-3 border border-rule font-mono text-xs">
+      <span class="size-2.5 rounded-full bg-ok animate-pulse"></span>
+      <div>
+        <span class="text-slate block text-[10px] uppercase">Registry Endpoint</span>
+        <span class="font-bold text-paper">registry.pyro-registry.svc:5000</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include Registry Catalog Component -->
+  {% include 'components/registry_tab.html' %}
+</div>
+
+<!-- Modals -->
+{% include 'components/deploy_user_app_modal.html' %}
+{% include 'components/docs_modal.html' %}
+{% endblock %}

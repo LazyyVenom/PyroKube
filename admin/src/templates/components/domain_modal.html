@@ -14,15 +14,23 @@
     <form id="domain-modal-form" hx-post="/dashboard/services/domain/attach" hx-target="#running-containers-list" hx-swap="outerHTML" onsubmit="closeDomainModal()" class="flex flex-col gap-4">
       <input type="hidden" id="domain-service-id" name="service_id" value="" />
 
-      <!-- Wildcard Info Banner -->
-      <div class="bg-ink p-3 border border-rule flex flex-col gap-1">
-        <span class="text-slate text-[10px] uppercase block">Auto-Allotted Wildcard Subdomain</span>
-        <span class="text-kube font-bold text-xs" id="domain-wildcard-display">service.anubhav.fyi</span>
+      <!-- Custom Wildcard Subdomain Prefix & Availability Checker -->
+      <div class="flex flex-col gap-1.5 bg-ink p-3 border border-rule">
+        <label for="subdomain-prefix-input" class="text-slate text-[10px] uppercase font-bold">Choose Wildcard Subdomain Prefix (*.anubhav.fyi)</label>
+        <div class="flex items-center gap-1">
+          <input type="text" id="subdomain-prefix-input" name="subdomain_prefix" placeholder="e.g. my-api, cool-app"
+            hx-get="/dashboard/domains/check-availability" hx-target="#subdomain-availability-status" hx-trigger="keyup delay:300ms, change"
+            class="flex-1 bg-surface border border-rule-strong px-3 py-1.5 font-mono text-xs text-paper focus:border-kube focus:outline-none">
+          <span class="text-slate font-mono text-xs">.anubhav.fyi</span>
+        </div>
+        <div id="subdomain-availability-status" class="mt-1">
+          <span class="text-slate text-[10px] italic">Type a custom subdomain prefix to check real-time availability...</span>
+        </div>
       </div>
 
-      <!-- Custom Domain Input -->
+      <!-- Custom External Domain Input -->
       <div class="flex flex-col gap-1">
-        <label for="domain-custom-input" class="text-slate text-[10px] uppercase">Attach External Custom Domain</label>
+        <label for="domain-custom-input" class="text-slate text-[10px] uppercase font-bold">Attach External Custom Domain</label>
         <input type="text" id="domain-custom-input" name="custom_domain" placeholder="e.g. api.mycompany.com, app.dev"
           class="w-full bg-ink border border-rule-strong px-3 py-2 text-paper placeholder:text-slate focus:border-kube focus:outline-none">
         <span class="text-slate-softer text-[10px]">Point your CNAME / A record to your VPS IP (<code class="text-paper">72.61.239.5</code>).</span>
@@ -44,7 +52,15 @@
 <script>
   function openDomainModal(serviceId, wildcardDomain, currentCustomDomain) {
     document.getElementById('domain-service-id').value = serviceId;
-    document.getElementById('domain-wildcard-display').innerText = wildcardDomain || `${serviceId}.anubhav.fyi`;
+    let prefix = serviceId;
+    if (wildcardDomain && wildcardDomain.includes('.')) {
+      prefix = wildcardDomain.split('.')[0];
+    }
+    const prefixInput = document.getElementById('subdomain-prefix-input');
+    if (prefixInput) {
+      prefixInput.value = prefix;
+      htmx.trigger(prefixInput, 'change');
+    }
     document.getElementById('domain-custom-input').value = currentCustomDomain || '';
     
     const dialog = document.getElementById('domain-modal');

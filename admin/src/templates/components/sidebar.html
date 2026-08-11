@@ -1,0 +1,69 @@
+<!-- Clean Vertical Left Sidebar Navigation Component -->
+<aside class="w-64 h-screen fixed left-0 top-0 bottom-0 z-30 bg-surface border-r border-rule-strong p-5 flex flex-col justify-between overflow-y-auto shrink-0 font-mono text-xs select-none">
+  <div class="flex flex-col gap-6">
+    <!-- Brand Logo Header -->
+    <div class="flex items-center gap-3 border-b border-rule pb-4">
+      <span class="size-4 bg-ember shadow-md shadow-ember/50"></span>
+      <a href="/dashboard" class="text-xl font-extrabold tracking-tight font-heading text-paper hover:text-ember transition-colors">
+        PyroKube
+      </a>
+    </div>
+
+    <!-- Vertical Navigation Menu Links -->
+    <div class="flex flex-col gap-1.5">
+      <span class="text-slate text-[10px] uppercase font-bold px-2 mb-1 tracking-wider">Navigation</span>
+
+      <a href="/dashboard"
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border border-transparent hover:border-rule rounded-none {% if current_page == 'dashboard' %}bg-ember text-paper font-semibold shadow-md{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt{% endif %}">
+        <span>🖥️</span> Overview
+      </a>
+
+      <a href="/dashboard/domains-page"
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border border-transparent hover:border-rule rounded-none {% if current_page == 'domains' %}bg-ember text-paper font-semibold shadow-md{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt{% endif %}">
+        <span>🌐</span> Domains & Ingress
+      </a>
+
+      <a href="/dashboard/registry-page"
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border border-transparent hover:border-rule rounded-none {% if current_page == 'registry' %}bg-ember text-paper font-semibold shadow-md{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt{% endif %}">
+        <span>🐳</span> Image Registry
+      </a>
+
+      <a href="/dashboard/cleanup-page"
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border border-transparent hover:border-rule rounded-none {% if current_page == 'cleanup' %}bg-ember text-paper font-semibold shadow-md{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt{% endif %}">
+        <span>🧹</span> Storage Cleanup
+      </a>
+
+      <a href="/dashboard/crons-page"
+        class="flex items-center gap-2.5 px-3 py-2.5 font-bold transition-all border border-transparent hover:border-rule rounded-none {% if current_page == 'crons' %}bg-ember text-paper font-semibold shadow-md{% else %}text-paper-soft hover:text-paper hover:bg-surface-alt{% endif %}">
+        <span>⏱️</span> CronJobs Engine
+      </a>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <div class="flex flex-col gap-2 border-t border-rule pt-4">
+      <span class="text-slate text-[10px] uppercase font-bold px-2 tracking-wider">Quick Actions</span>
+
+      <button type="button" onclick="openUserAppModal()"
+        class="w-full text-left border border-ok bg-ok/10 text-ok px-3 py-2 text-xs font-mono tracking-wider uppercase hover:bg-ok hover:text-ink font-bold transition-all shadow-md">
+        + Deploy Custom App
+      </button>
+
+      <button type="button" onclick="openDocsModal()"
+        class="w-full text-left border border-rule-strong px-3 py-2 text-xs font-mono text-paper-soft hover:text-paper hover:bg-surface-alt font-bold uppercase transition-all">
+        📖 App Specs & Guide
+      </button>
+    </div>
+  </div>
+
+  <!-- Sidebar Footer User Profile -->
+  <div class="flex flex-col gap-3 border-t border-rule pt-4">
+    <div class="flex items-center gap-2">
+      <span class="size-2 rounded-full bg-ok"></span>
+      <span class="text-slate text-[11px] font-mono">Cluster Owner (Admin)</span>
+    </div>
+    <a href="/logout"
+      class="w-full text-center border border-rule-strong px-3 py-1.5 text-xs font-mono tracking-wider text-paper uppercase hover:bg-paper hover:text-ink transition-colors">
+      Log out
+    </a>
+  </div>
+</aside>

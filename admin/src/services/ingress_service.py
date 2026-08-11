@@ -14,13 +14,33 @@ class PyroKubeIngressService:
     """
 
     @staticmethod
+    def is_subdomain_available(
+        db: Session,
+        prefix: str,
+        current_service_id: Optional[str] = None,
+    ) -> bool:
+        if not prefix or not prefix.strip():
+            return False
+        clean_prefix = prefix.strip().lower().replace(" ", "-")
+        target_host = f"{clean_prefix}.{setting.WILDCARD_DOMAIN}" if setting.WILDCARD_DOMAIN else clean_prefix
+
+        from models.dashboard import UserService
+        query = db.query(UserService).filter(UserService.wildcard_domain == target_host)
+        if current_service_id:
+            query = query.filter(UserService.id != current_service_id)
+
+        return query.first() is None
+
+    @staticmethod
     def provision_k8s_ingress(
         instance_name: str,
         port: int,
         custom_domain: Optional[str] = None,
+        subdomain_prefix: Optional[str] = None,
         db: Optional[Session] = None,
     ) -> Tuple[Optional[str], Optional[str]]:
-        wildcard_host = f"{instance_name}.{setting.WILDCARD_DOMAIN}" if setting.WILDCARD_DOMAIN and setting.WILDCARD_DOMAIN.strip() else None
+        prefix = subdomain_prefix.strip().lower().replace(" ", "-") if subdomain_prefix and subdomain_prefix.strip() else instance_name
+        wildcard_host = f"{prefix}.{setting.WILDCARD_DOMAIN}" if setting.WILDCARD_DOMAIN and setting.WILDCARD_DOMAIN.strip() else None
         namespace = f"pyro-{instance_name}"
 
         if db:
